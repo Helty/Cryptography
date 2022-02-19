@@ -37,14 +37,15 @@ int main(int argc, char* argv[])
 	SetConsoleCP(1251);
 	SetConsoleOutputCP(1251);
 
-	if (argc != 4)
+	if (argc != 5)
 	{
 		cout << "Invalid arguments count" << endl
 			<< "Usage: " << endl 
-			<< "\tcrypt.exe <file to crypt> <key file> <encrypt file>" << endl
+			<< "\tcrypt.exe <file to crypt> <key file> <encrypt file> <decrypt file>" << endl
 			<< "\t\t<file to crypt> - path to file, where stored data for encryption." << endl
 			<< "\t\t<key file> - path to file, where stored key." << endl
-			<< "\t\t<encrypt file> - path to file, where will be encryption text." << endl;
+			<< "\t\t<encrypt file> - path to file, where will be encryption text." << endl
+			<< "\t\t<decrypt file> - path to file, where will be decryption text." << endl;
 		return 1;
 	}
 	
@@ -60,7 +61,10 @@ int main(int argc, char* argv[])
 			throw std::logic_error("Failed key size");
 		}
 
-		writeInFile(bitXor(code, key), argv[3]);
+		string encryptText = bitXor(code, key);
+		writeInFile(encryptText, argv[3]);
+		string decryptText = bitXor(encryptText, key);
+		writeInFile(decryptText, argv[4]);
 	}
 	catch (string err)
 	{
