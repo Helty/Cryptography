@@ -4,9 +4,6 @@
 #include <vector>
 #include <fstream>
 #include <windows.h>
-#include <cmath>
-#include <boost/foreach.hpp>
-#include <boost/tokenizer.hpp>
 
 using namespace std;
 
@@ -51,6 +48,7 @@ string encrypt(byte, PublicKey);
 string decryptText(string const&, PrivateKey);
 byte decrypt(string, PrivateKey);
 
+//работа с файлами
 string readFile(const char* filename)
 {
 	ifstream fileIn(filename, std::ios::binary);
@@ -65,6 +63,8 @@ void writeInFile(string const& encryptText, const char* filename)
 	file << encryptText;
 	file.close();
 }
+
+//подсёт p q n Ф(n) e d
 ArrayPrimal getPrimalsNumberFromFile(const char* primalsFile)
 {
 	ArrayPrimal result;
@@ -101,19 +101,6 @@ uint32_t calcEuler(PrimalPair primalPair)
 {
 	return ((primalPair.p1 - 1) * (primalPair.p2 - 1));
 }
-uint32_t greatestCommonDivisor(uint32_t e, uint32_t euler)
-{
-	while (e > 0)
-	{
-		uint32_t myTemp;
-
-		myTemp = e;
-		e = euler % e;
-		euler = myTemp;
-	}
-
-	return euler;
-}
 uint32_t calcSecretExponent(uint32_t e, uint32_t euler)
 {
 	uint32_t d;
@@ -143,6 +130,21 @@ uint32_t calcPublicExponent(uint32_t euler)
 
 	throw logic_error("Non public exponent");
 }
+
+//вспомогательные функции
+uint32_t greatestCommonDivisor(uint32_t e, uint32_t euler)
+{
+	while (e > 0)
+	{
+		uint32_t myTemp;
+
+		myTemp = e;
+		e = euler % e;
+		euler = myTemp;
+	}
+
+	return euler;
+}
 bool isRelativelySimple(uint32_t primal, uint32_t euler)
 {
 	return (GCD(primal, euler) == 1) ? true : false;
@@ -167,6 +169,8 @@ uint32_t modPov(uint32_t base, uint32_t pov, uint32_t modul)
 	}
 	return res;
 }
+
+//шифрование/дешифрование
 string encryptText(string const& text, PublicKey key)
 {
 	string result;
