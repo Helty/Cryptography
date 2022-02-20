@@ -5,48 +5,61 @@
 #include <fstream>
 #include <windows.h>
 
-using namespace std;
-
 namespace
 {
 	struct PrimalPair
 	{
-		uint32_t p1;
-		uint32_t p2;
+		uint64_t p;
+		uint64_t q;
 	};
 	struct PublicKey
 	{
-		uint32_t n;
-		uint32_t e;
+		uint64_t n;
+		uint64_t e;
 	};
 	struct PrivateKey
 	{
-		uint32_t n;
-		uint32_t d;
-	};
-	struct RSA
+		uint64_t n;
+		uint64_t d;
+	}; 
+		
+	struct RSAKeys
 	{
 		PublicKey publicKey;
 		PrivateKey privateKey;
 	};
-	using ArrayPrimal = vector<uint32_t>;
+
+	using namespace std;
+	using BigArray = vector<uint64_t>;
+	using ArrayByte = vector<byte>;
+
+	const int SIZE_TWO_BYTE = 65535;
 }
 
-string readFile(const char*);
-void writeInFile(string const&, const char*);
-ArrayPrimal getPrimalsNumberFromFile(const char*);
-PrimalPair getPairPrimalNumber(ArrayPrimal&);
-uint32_t calcPublicExponent(uint32_t);
-uint32_t calcModule(PrimalPair);
-uint32_t calcEuler(PrimalPair);
-uint32_t calcSecretExponent(uint32_t, uint32_t);
-uint32_t greatestCommonDivisor(uint32_t, uint32_t);
-bool isRelativelySimple(uint32_t, uint32_t);
-uint32_t GCD(uint32_t a, uint32_t b);
-string encryptText(string const&, PublicKey);
-string encrypt(byte, PublicKey);
-string decryptText(string const&, PrivateKey);
-byte decrypt(string, PrivateKey);
+string readFile(const char* filename);
+void writeInFile(BigArray const& text, const char* filename);
+BigArray getPrimalsNumberFromFile(const char* primalsFile);
+PrimalPair getPairPrimalNumber(BigArray& primals);
+uint64_t calcModule(PrimalPair const& primalPair);
+uint64_t calcEuler(PrimalPair const& primalPair);
+uint64_t calcSecretExponent(uint64_t e, uint64_t euler);
+uint64_t calcPublicExponent(uint64_t euler);
+uint64_t greatestCommonDivisor(uint64_t e, uint64_t euler);
+uint64_t modPow(uint64_t base, uint64_t pov, uint64_t modul);
+uint16_t concatByte(byte firstByte, byte secondByte);
+BigArray encryptText(string const& text, PublicKey key);
+BigArray encryptedTextByTwoByte(string const& text, PublicKey key);
+BigArray encryptedTextByOneByte(string const& text, PublicKey key);
+uint64_t encrypt(uint64_t code, PublicKey key);
+BigArray decryptText(BigArray const& text, PrivateKey key);
+BigArray decryptedTextByTwoByte(BigArray const& text, PrivateKey key);
+BigArray decryptedTextByOneByte(BigArray const& text, PrivateKey key);
+uint64_t decrypt(uint64_t code, PrivateKey key);
+void ArgChecking(int argc);
+void StartRSA(char* argv[]);
+ArrayByte getTextToEncrypt(const char* textFile);
+RSAKeys getPublicAndPrivateKeys(const char* primalFile);
+PrimalPair GetPrimalPair(const char* primalFile);
 
 //работа с файлами
 string readFile(const char* filename)
@@ -57,17 +70,20 @@ string readFile(const char* filename)
 	fileIn.close();
 	return str;
 }
-void writeInFile(string const& encryptText, const char* filename)
+void writeInFile(BigArray const& text, const char* filename)
 {
 	std::ofstream file(filename);
-	file << encryptText;
+	for (uint64_t elem : text)
+	{
+		file << (unsigned char)elem;
+	}
 	file.close();
 }
 
 //подсёт p q n Ф(n) e d
-ArrayPrimal getPrimalsNumberFromFile(const char* primalsFile)
+BigArray getPrimalsNumberFromFile(const char* primalsFile)
 {
-	ArrayPrimal result;
+	BigArray result;
 	string primals = readFile(primalsFile);
 	istringstream iss(primals);
 	string item;
@@ -77,34 +93,39 @@ ArrayPrimal getPrimalsNumberFromFile(const char* primalsFile)
 	}
 	return result;
 }
-PrimalPair getPairPrimalNumber(ArrayPrimal& primals)
+PrimalPair getPairPrimalNumber(BigArray& primals)
 {
 	if (primals.empty())
 	{
 		throw invalid_argument("Primals numbers is out.");
 	}
 
-	PrimalPair result;
+	PrimalPair result{};
 
-	result.p1 = primals.back();
+	result.p = primals.back();
 	primals.pop_back();
-	result.p2 = primals.back();
+	result.q = primals.back();
 	primals.pop_back();
 
 	return result;
 }
-uint32_t calcModule(PrimalPair primalPair)
+uint64_t calcModule(PrimalPair const& primalPair)
 {
-	return (primalPair.p1 * primalPair.p2);
+	uint64_t n = (primalPair.p * primalPair.q);
+	if (n < 255)
+	{
+		throw logic_error("Pick up another set (p, q >= 255), for example 17 and 19. To correctly encrypt two characters, you need (p*q >= 65535).");
+	}
+	return n;
 }
-uint32_t calcEuler(PrimalPair primalPair)
+uint64_t calcEuler(PrimalPair const& primalPair)
 {
-	return ((primalPair.p1 - 1) * (primalPair.p2 - 1));
+	return ((primalPair.p - 1) * (primalPair.q - 1));
 }
-uint32_t calcSecretExponent(uint32_t e, uint32_t euler)
+uint64_t calcSecretExponent(uint64_t e, uint64_t euler)
 {
-	uint32_t d;
-	uint32_t k = 1;
+	uint64_t d;
+	uint64_t k = 1;
 
 	while (true)
 	{
@@ -119,9 +140,9 @@ uint32_t calcSecretExponent(uint32_t e, uint32_t euler)
 
 	throw logic_error("Non secret exponent");
 }
-uint32_t calcPublicExponent(uint32_t euler)
+uint64_t calcPublicExponent(uint64_t euler)
 {
-	uint32_t e;
+	uint64_t e;
 
 	for (e = 2; e < euler; e++)
 	{
@@ -132,11 +153,11 @@ uint32_t calcPublicExponent(uint32_t euler)
 }
 
 //вспомогательные функции
-uint32_t greatestCommonDivisor(uint32_t e, uint32_t euler)
+uint64_t greatestCommonDivisor(uint64_t e, uint64_t euler)
 {
 	while (e > 0)
 	{
-		uint32_t myTemp;
+		uint64_t myTemp;
 
 		myTemp = e;
 		e = euler % e;
@@ -145,17 +166,9 @@ uint32_t greatestCommonDivisor(uint32_t e, uint32_t euler)
 
 	return euler;
 }
-bool isRelativelySimple(uint32_t primal, uint32_t euler)
+uint64_t modPow(uint64_t base, uint64_t pov, uint64_t modul)
 {
-	return (GCD(primal, euler) == 1) ? true : false;
-}
-uint32_t GCD(uint32_t a, uint32_t b)
-{
-	return b ? GCD(b, a % b) : a;
-}
-uint32_t modPov(uint32_t base, uint32_t pov, uint32_t modul)
-{
-	uint32_t res = 1;
+	uint64_t res = 1;
 	base = base % modul;
 	if (base == 0) return 0;
 	while (pov > 0)
@@ -169,55 +182,120 @@ uint32_t modPov(uint32_t base, uint32_t pov, uint32_t modul)
 	}
 	return res;
 }
+uint16_t concatByte(byte firstByte, byte secondByte)
+{
+	return firstByte << 8 | secondByte;
+}
 
-//шифрование/дешифрование
-string encryptText(string const& text, PublicKey key)
+//шифрование
+BigArray encryptText(string const& text, PublicKey key)
 {
-	string result;
-	for (size_t i = 0; i < text.length(); i++)
+	return (key.n >= SIZE_TWO_BYTE) ? encryptedTextByTwoByte(text, key)
+		: encryptedTextByOneByte(text, key);
+}
+BigArray encryptedTextByTwoByte(string const& text, PublicKey key)
+{
+	BigArray result;
+	for (size_t i = 0; i < text.size(); i += 2)
 	{
-		result += encrypt(text[i], key);
+		byte next = ((text.size() % 2 != 0) and (text[i] == text.back())) ? 0 : text[i + 1];
+		result.push_back(encrypt(concatByte(text[i], next), key));
 	}
 	return result;
 }
-string encrypt(byte code, PublicKey key)
+BigArray encryptedTextByOneByte(string const& text, PublicKey key)
 {
-	uint32_t result = 1;
-	for (size_t i = 0; i < key.e; i++)
-	{
-		result *= code;
-		result %= key.n;
-	}
-	string res = to_string(result);
-	if (!(res.size() == to_string(key.n).size()))
-	{
-		size_t count = to_string(key.n).size() - res.size();
-		for (size_t i = 0; i < count; i++)
-		{
-			res.insert(0, "0");
-		}
-	}
-	return res;
-}
-string decryptText(string const& text, PrivateKey key)
-{
-	string result;
-	uint32_t start = 0;
-	uint32_t step = to_string(key.n).length();
-	uint32_t encryptTextSize = (text.length() / step);
-	for (size_t i = 0; i < encryptTextSize; i++)
-	{
-		result += decrypt(text.substr(start, step), key);
-		start += step;
-	}
+	BigArray result;
+	for (size_t i = 0; i < text.size(); i++) result.push_back(encrypt((byte)text[i], key));
 	return result;
 }
-byte decrypt(string code, PrivateKey key)
+uint64_t encrypt(uint64_t code, PublicKey key)
 {
-	while (code[0] == '0') code.erase(0, 1);
-	uint32_t codeInt = stoi(code);
-	uint32_t result = modPov(codeInt, key.d, key.n);
+	return modPow(code, key.e, key.n);
+}
+
+//дешифрование
+BigArray decryptText(BigArray const& text, PrivateKey key)
+{
+	return (key.n >= SIZE_TWO_BYTE) ? decryptedTextByTwoByte(text, key)
+		: decryptedTextByOneByte(text, key);
+}
+BigArray decryptedTextByTwoByte(BigArray const& text, PrivateKey key)
+{
+	BigArray result;
+
+	for (size_t i = 0; i < text.size(); i ++)
+	{
+		uint64_t decryptBytes = decrypt(text[i], key);
+		result.push_back(decryptBytes >> 8);
+		result.push_back((byte)decryptBytes);
+	}
+
 	return result;
+}
+BigArray decryptedTextByOneByte(BigArray const& text, PrivateKey key)
+{
+	BigArray result;
+	for (size_t i = 0; i < text.size(); i++) result.push_back(decrypt(text[i], key));
+	return result;
+}
+uint64_t decrypt(uint64_t code, PrivateKey key)
+{
+	return modPow(code, key.d, key.n);
+}
+
+void ArgChecking(int argc)
+{
+	if (argc != 5)
+	{
+		cout << "Usage: " << endl
+			<< "\tcrypt.exe <file primal> <file text> <file encryptText> <file decryptText>" << endl
+			<< "\t\t<file primal> - path to file, where stored primal numbers." << endl
+			<< "\t\t<file text> - path to file, where stored text to encrypt." << endl
+			<< "\t\t<file encryptText> - path to file, where will be encryption text." << endl
+			<< "\t\t<file decryptText> - path to file, where will be decryption text." << endl;
+
+		throw invalid_argument("Invalid arguments count.");
+	}
+}
+void StartRSA(char* argv[])
+{
+	RSAKeys rsaKeys = getPublicAndPrivateKeys(argv[1]);
+	string text = readFile(argv[2]);
+
+	BigArray encryptedText = encryptText(text, rsaKeys.publicKey);
+	BigArray decryptedText = decryptText(encryptedText, rsaKeys.privateKey);
+	
+	writeInFile(encryptedText, argv[3]);
+	writeInFile(decryptedText, argv[4]);
+}
+ArrayByte getTextToEncrypt(const char* textFile)
+{
+	ArrayByte result;
+	string textFromFile = readFile(textFile);
+
+	for (byte letter : textFromFile)
+	{
+		result.push_back(letter);
+	}
+
+	return result;
+}
+RSAKeys getPublicAndPrivateKeys(const char* primalFile)
+{
+	PrimalPair primalPair = GetPrimalPair(primalFile);
+
+	uint64_t n = calcModule(primalPair);
+	uint64_t Euler = calcEuler(primalPair);
+	uint64_t e = calcPublicExponent(Euler);
+	uint64_t d = calcSecretExponent(e, Euler);
+
+	return { /*public key*/{ n, e }, /*private key*/{ n, d } };
+}
+PrimalPair GetPrimalPair(const char* primalFile)
+{
+	BigArray primals = getPrimalsNumberFromFile(primalFile);
+	return getPairPrimalNumber(primals);
 }
 
 int main(int argc, char* argv[])
@@ -228,35 +306,12 @@ int main(int argc, char* argv[])
 
 	try
 	{
-		if (argc != 5)
-		{
-			cout << "Usage: " << endl
-				<< "\tcrypt.exe <file primal> <file text> <file encryptText> <file decryptText>" << endl
-				<< "\t\t<file primal> - path to file, where stored primal numbers." << endl
-				<< "\t\t<file text> - path to file, where stored text to encrypt." << endl
-				<< "\t\t<file encryptText> - path to file, where will be encryption text." << endl
-				<< "\t\t<file decryptText> - path to file, where will be decryption text." << endl;
-			throw invalid_argument("Invalid arguments count");
-		}
-
-		ArrayPrimal primals = getPrimalsNumberFromFile(argv[1]);
-		PrimalPair primalPair = getPairPrimalNumber(primals);
-		uint32_t n = calcModule(primalPair);
-		uint32_t Euler = calcEuler(primalPair);
-		uint32_t e = calcPublicExponent(Euler);
-		uint32_t d = calcSecretExponent(e, Euler);
-		RSA rsaKeys { /*public key*/{ n, e }, /*private key*/{ n, d } };
-		string text = readFile(argv[2]);
-
-		string encryptedText = encryptText(text, rsaKeys.publicKey);
-		string decryptedText = decryptText(encryptedText, rsaKeys.privateKey);
-
-		writeInFile(encryptedText, argv[3]);
-		writeInFile(decryptedText, argv[4]);
+		ArgChecking(argc);
+		StartRSA(argv);
 	}
-	catch (string err)
+	catch (const exception err)
 	{
-		cerr << err << endl;
+		cerr << err.what() << endl;
 		return 1;
 	}
 	return 0;
