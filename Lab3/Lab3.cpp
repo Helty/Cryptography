@@ -4,11 +4,7 @@
 #include "TestUnlinkedSeries.h"
 #include "TestCheckIntervals.h"
 #include "TestCheckCombinations.h"
-
-void StartCheckPermutations(std::string bitSequence)
-{
-
-}
+#include "TestGathererCoupon.h"
 
 std::string getSequenceFromFile(const char* file)
 {
@@ -39,7 +35,7 @@ std::string getBitSequenceFromFile(const char* file)
 	return getBitSequenceFromString(sequence);
 }
 
-void StartCheckTestGathererCoupon(std::string bitSequence)
+void StartCheckPermutations(std::string bitSequence)
 {
 
 }
