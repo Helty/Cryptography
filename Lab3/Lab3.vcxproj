@@ -142,6 +142,7 @@
     <ClCompile Include="Lab3.cpp" />
     <ClCompile Include="TestCheckCombinations.cpp" />
     <ClCompile Include="TestCheckIntervals.cpp" />
+    <ClCompile Include="TestCheckPermutations.cpp" />
     <ClCompile Include="TestGathererCoupon.cpp" />
     <ClCompile Include="TestUnlinkedSeries.cpp" />
   </ItemGroup>
@@ -151,6 +152,7 @@
   <ItemGroup>
     <ClInclude Include="TestCheckCombinations.h" />
     <ClInclude Include="TestCheckIntervals.h" />
+    <ClInclude Include="TestCheckPermutations.h" />
     <ClInclude Include="TestGathererCoupon.h" />
     <ClInclude Include="TestUnlinkedSeries.h" />
   </ItemGroup>

@@ -30,6 +30,9 @@
     <ClCompile Include="TestGathererCoupon.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="TestCheckPermutations.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -45,6 +48,9 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="TestGathererCoupon.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="TestCheckPermutations.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
