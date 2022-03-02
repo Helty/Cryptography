@@ -145,7 +145,7 @@
     <ClCompile Include="TestCheckIntervals.cpp" />
     <ClCompile Include="TestCheckPermutations.cpp" />
     <ClCompile Include="TestCheckGathererCoupon.cpp" />
-    <ClCompile Include="TestCheckSpectralCriterial.cpp" />
+    <ClCompile Include="TestCheckSpectralAndExpCriterial.cpp" />
     <ClCompile Include="TestCheckUnlinkedSeries.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -157,7 +157,7 @@
     <ClInclude Include="TestCheckIntervals.h" />
     <ClInclude Include="TestCheckPermutations.h" />
     <ClInclude Include="TestCheckGathererCoupon.h" />
-    <ClInclude Include="TestCheckSpectralCriterial.h" />
+    <ClInclude Include="TestCheckSpectralAndExpCriterial.h" />
     <ClInclude Include="TestCheckUnlinkedSeries.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

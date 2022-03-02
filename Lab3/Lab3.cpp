@@ -8,7 +8,7 @@
 #include "TestCheckPermutations.h"
 
 #include "TestCheckFlatDistribution.h"
-#include "TestCheckSpectralCriterial.h"
+#include "TestCheckSpectralAndExpCriterial.h"
 
 std::string getSequenceFromFile(const char* file)
 {

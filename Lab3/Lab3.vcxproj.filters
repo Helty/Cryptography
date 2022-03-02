@@ -36,7 +36,7 @@
     <ClCompile Include="TestCheckFlatDistribution.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="TestCheckSpectralCriterial.cpp">
+    <ClCompile Include="TestCheckSpectralAndExpCriterial.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
@@ -62,7 +62,7 @@
     <ClInclude Include="TestCheckFlatDistribution.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="TestCheckSpectralCriterial.h">
+    <ClInclude Include="TestCheckSpectralAndExpCriterial.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
