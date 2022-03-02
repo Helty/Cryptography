@@ -1,6 +1,6 @@
 #include "TestCheckSpectralAndExpCriterial.h"
 
-void PrintCheckExpCriterial(int16_t N, std::complex<double>* p)
+void PrintCheckExpCriterial(size_t N, std::complex<double>* p)
 {
 	std::cout << "CheckExpCriterial: {";
 	for (int16_t i = 0; i < N; i++)
@@ -10,7 +10,7 @@ void PrintCheckExpCriterial(int16_t N, std::complex<double>* p)
 	}
 	std::cout << "}" << std::endl;
 }
-void PrintCheckSpectralCriterial(int16_t N, std::complex<double>* p)
+void PrintCheckSpectralCriterial(size_t N, std::complex<double>* p)
 {
 	std::complex<double> e, buf = 0;
 	for (int16_t m = 0; m < N; m++) buf += pow(abs(p[m]) - sqrt(N), 2);
@@ -20,10 +20,10 @@ void PrintCheckSpectralCriterial(int16_t N, std::complex<double>* p)
 void StartCheckSpectralCriterial(std::string const& bitSequence)
 {
 	const int16_t MAX_N = 100;
-	double PI = 3.14159265359;
+
 
 	int16_t u[MAX_N];
-	int16_t N = bitSequence.size();
+	size_t N = bitSequence.size();
 	std::complex<double> p[MAX_N];
 
 	//u
@@ -35,7 +35,7 @@ void StartCheckSpectralCriterial(std::string const& bitSequence)
 		p[m] = 0;
 		for (int16_t n = 0; n < N; n++)
 		{
-			p[m] += std::complex<double>(u[n]) * std::complex<double>(cos(-2 * PI * m * n / N), sin(-2 * PI * m * n / N));
+			p[m] += std::complex<double>(u[n]) * std::complex<double>(cos(-2 * M_PI * m * n / N), sin(-2 * M_PI * m * n / N));
 		}
 	}
 	PrintCheckExpCriterial(N, p);
