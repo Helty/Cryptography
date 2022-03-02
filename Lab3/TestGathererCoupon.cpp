@@ -1,6 +1,6 @@
 #include "TestGathererCoupon.h"
 
-std::vector<std::string> getSubSequences(std::string bitSequence)
+std::vector<std::string> getSubSequencesGathererCoupon(std::string bitSequence)
 {
 	std::vector<std::string> result;
 	std::string sub = "";
@@ -31,7 +31,7 @@ std::vector<std::string> getSubSequences(std::string bitSequence)
 	}
 	return result;
 }
-std::map<uint16_t, uint16_t> getLengthOfSubSequence(std::vector<std::string> subSequence, uint16_t t)
+std::map<uint16_t, uint16_t> getLengthOfSubSequenceGathererCoupon(std::vector<std::string> subSequence, uint16_t t)
 {
 	std::map<uint16_t, uint16_t> result;
 	for (size_t i = 2; i <= t; i++) result[i] = 0;
@@ -42,7 +42,7 @@ std::map<uint16_t, uint16_t> getLengthOfSubSequence(std::vector<std::string> sub
 	}
 	return result;
 }
-double ChiSquare(uint16_t t, std::map<uint16_t, uint16_t> lengthOfSubSequence, double vSum, std::vector <double> pVector)
+double ChiSquareGathererCoupon(uint16_t t, std::map<uint16_t, uint16_t> lengthOfSubSequence, double vSum, std::vector <double> pVector)
 {
 	double result = 0;
 	for (size_t i = 1; i <= t; i++)
@@ -72,9 +72,9 @@ std::vector<double> getPVector(uint16_t t)
 void StartCheckTestGathererCoupon(std::string bitSequence)
 {
 	uint16_t t = 5;
-	std::vector<std::string> subSequence = getSubSequences(bitSequence);
-	std::map<uint16_t, uint16_t> vMap = getLengthOfSubSequence(subSequence, t);
+	std::vector<std::string> subSequence = getSubSequencesGathererCoupon(bitSequence);
+	std::map<uint16_t, uint16_t> vMap = getLengthOfSubSequenceGathererCoupon(subSequence, t);
 	double vSum = getVSum(vMap);
 	std::vector <double> pVector = getPVector(t);
-	std::cout << ChiSquare(t, vMap, vSum, pVector) << std::endl;
+	std::cout << ChiSquareGathererCoupon(t, vMap, vSum, pVector) << std::endl;
 }

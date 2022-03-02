@@ -4,7 +4,7 @@ void StartCheckUnlinkedSeries(std::string bitSequence)
 {
 	uint16_t m = ToInt(GetSeriesLenght(bitSequence.size()));
 	std::map<std::string, uint16_t> seriesCounter = GetSeriesCounter(bitSequence, m);
-	std::cout << ChiSquare(seriesCounter, bitSequence, m) << std::endl;
+	std::cout << ChiSquareUnlinkedSeries(seriesCounter, bitSequence, m) << std::endl;
 }
 Serieslength GetSeriesLenght(size_t lengthBits)
 {
@@ -39,7 +39,7 @@ std::map<std::string, uint16_t> SetAll—ombinationsOfSerial(uint16_t m)
 	}
 	return result;
 }
-double ChiSquare(std::map<std::string, uint16_t> seriesCounter, std::string bitSequence, uint16_t m)
+double ChiSquareUnlinkedSeries(std::map<std::string, uint16_t> seriesCounter, std::string bitSequence, uint16_t m)
 {
 	std::vector<uint16_t> valueFromMap;
 	for (std::map<std::string, uint16_t>::iterator it = seriesCounter.begin(); it != seriesCounter.end(); ++it)

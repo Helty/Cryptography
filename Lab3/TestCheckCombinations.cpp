@@ -1,6 +1,6 @@
 #include "TestCheckCombinations.h"
 
-std::vector<std::string> getSubsequences(std::string bitSequence, uint16_t t)
+std::vector<std::string> getSubsequencesCombinations(std::string bitSequence, uint16_t t)
 {
 	std::vector<std::string> result;
 	for (size_t i = 0; i != bitSequence.size(); i += t)
@@ -11,10 +11,10 @@ std::vector<std::string> getSubsequences(std::string bitSequence, uint16_t t)
 	}
 	return result;
 }
-std::map<uint16_t, uint16_t> getLengOfSubsequences(std::string bitSequence, uint16_t t)
+std::map<uint16_t, uint16_t> getLengOfSubsequencesCombinations(std::string bitSequence, uint16_t t)
 {
 	std::map<uint16_t, uint16_t> result;
-	std::vector<std::string> subSequences = getSubsequences(bitSequence, t);
+	std::vector<std::string> subSequences = getSubsequencesCombinations(bitSequence, t);
 
 	for (size_t i = 1; i <= 2; i++) result[i] = 0;
 
@@ -38,6 +38,6 @@ void StartCheckCombinations(std::string bitSequence)
 {
 	double n = bitSequence.size();
 	uint16_t t = 4;
-	std::map<uint16_t, uint16_t> mapLengOfSubsequences = getLengOfSubsequences(bitSequence, t);
+	std::map<uint16_t, uint16_t> mapLengOfSubsequences = getLengOfSubsequencesCombinations(bitSequence, t);
 	std::cout << pow((mapLengOfSubsequences[1] - n / t), 2) / (n / t) << std::endl;
 }

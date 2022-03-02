@@ -1,6 +1,6 @@
 #include "TestCheckPermutations.h"
 
-std::vector<std::string> getSubsequences(std::string bitSequence, uint16_t t)
+std::vector<std::string> getSubsequencesPermutations(std::string bitSequence, uint16_t t)
 {
 	std::vector<std::string> result;
 	for (size_t i = 0; i != bitSequence.size(); i += t)
@@ -11,7 +11,7 @@ std::vector<std::string> getSubsequences(std::string bitSequence, uint16_t t)
 	}
 	return result;
 }
-std::map<std::string, uint16_t> getVMap(std::vector<std::string> subSequences)
+std::map<std::string, uint16_t> getVMapPermutations(std::vector<std::string> subSequences)
 {
 	std::map<std::string, uint16_t> result;
 	if (subSequences.size() < 2)
@@ -32,7 +32,7 @@ double Fact(double n)
 {
 	return (n > 1) ? n * Fact(n - 1) : n;
 }
-double ChiSquare(std::map<std::string, uint16_t> vMap, std::vector<std::string> subSequences, uint16_t t)
+double ChiSquarePermutations(std::map<std::string, uint16_t> vMap, std::vector<std::string> subSequences, uint16_t t)
 {
 	double result = 0;
 	double length = subSequences.size();
@@ -49,7 +49,7 @@ double ChiSquare(std::map<std::string, uint16_t> vMap, std::vector<std::string> 
 void StartCheckPermutations(std::string bitSequence)
 {
 	uint16_t t = 2;
-	std::vector<std::string> subSequences = getSubsequences(bitSequence, t);
-	std::map<std::string, uint16_t> vMap = getVMap(subSequences);
-	std::cout << ChiSquare(vMap, subSequences, t) << std::endl;
+	std::vector<std::string> subSequences = getSubsequencesPermutations(bitSequence, t);
+	std::map<std::string, uint16_t> vMap = getVMapPermutations(subSequences);
+	std::cout << ChiSquarePermutations(vMap, subSequences, t) << std::endl;
 }

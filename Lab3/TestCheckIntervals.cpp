@@ -1,6 +1,6 @@
 #include "TestCheckIntervals.h"
 
-double ChiSquare(std::map<uint16_t, int16_t> counterIntervals, Interval interval, uint16_t freedomDegree)
+double ChiSquareIntervals(std::map<uint16_t, int16_t> counterIntervals, Interval interval, uint16_t freedomDegree)
 {
 	double result = 0;
 	uint64_t totalNumberIntervals = 0;
@@ -56,5 +56,5 @@ void StartCheckIntervals(std::string bitSequence)
 	uint16_t freedomDegree = 10;
 	std::vector<int16_t> sequenceIntervalLengths = getSequenceIntervalLengths(bitSequence);
 	std::map<uint16_t, int16_t> counterIntervals = getCounterIntervals(sequenceIntervalLengths, freedomDegree);
-	std::cout << ChiSquare(counterIntervals, interval, freedomDegree) << std::endl;
+	std::cout << ChiSquareIntervals(counterIntervals, interval, freedomDegree) << std::endl;
 }
