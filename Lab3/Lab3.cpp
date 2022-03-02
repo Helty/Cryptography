@@ -1,11 +1,14 @@
 ﻿#include <iostream>
 #include <Windows.h>
 
-#include "TestUnlinkedSeries.h"
+#include "TestCheckUnlinkedSeries.h"
 #include "TestCheckIntervals.h"
 #include "TestCheckCombinations.h"
-#include "TestGathererCoupon.h"
+#include "TestCheckGathererCoupon.h"
 #include "TestCheckPermutations.h"
+
+#include "TestCheckFlatDistribution.h"
+#include "TestCheckSpectralCriterial.h"
 
 std::string getSequenceFromFile(const char* file)
 {
@@ -38,11 +41,15 @@ std::string getBitSequenceFromFile(const char* file)
 
 void StartTests(std::string const& bitSequence)
 {
+	//Knuth
 	StartCheckUnlinkedSeries(bitSequence);
 	StartCheckIntervals(bitSequence);
 	StartCheckCombinations(bitSequence);
 	StartCheckTestGathererCoupon(bitSequence);
 	StartCheckPermutations(bitSequence);
+	//
+	StartCheckFlatDistribution(bitSequence);
+	StartCheckSpectralCriterial(bitSequence);
 }
 void ArgChecking(int argc)
 {
@@ -65,6 +72,8 @@ int main(int argc, char * argv[])
 	{
 		ArgChecking(argc);
 		//std::string bitSequence = getBitSequenceFromFile(argv[1]);
+		//std::string NumSequence = getNumSequenceFromFile(argv[1]);
+		//StartTests(bitSequence, NumSequence);
 		StartTests(argv[1]);
 	}
 	catch (const std::exception& e)

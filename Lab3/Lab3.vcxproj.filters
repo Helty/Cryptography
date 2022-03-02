@@ -18,7 +18,7 @@
     <ClCompile Include="Lab3.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="TestUnlinkedSeries.cpp">
+    <ClCompile Include="TestCheckUnlinkedSeries.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="TestCheckIntervals.cpp">
@@ -27,10 +27,16 @@
     <ClCompile Include="TestCheckCombinations.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="TestGathererCoupon.cpp">
+    <ClCompile Include="TestCheckGathererCoupon.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="TestCheckPermutations.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="TestCheckFlatDistribution.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="TestCheckSpectralCriterial.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
@@ -38,7 +44,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="TestUnlinkedSeries.h">
+    <ClInclude Include="TestCheckUnlinkedSeries.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="TestCheckIntervals.h">
@@ -47,10 +53,16 @@
     <ClInclude Include="TestCheckCombinations.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="TestGathererCoupon.h">
+    <ClInclude Include="TestCheckGathererCoupon.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="TestCheckPermutations.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="TestCheckFlatDistribution.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="TestCheckSpectralCriterial.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

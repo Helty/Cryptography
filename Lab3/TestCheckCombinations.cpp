@@ -39,5 +39,5 @@ void StartCheckCombinations(std::string bitSequence)
 	double n = (double)bitSequence.size();
 	uint16_t t = 4;
 	std::map<uint16_t, uint16_t> mapLengOfSubsequences = getLengOfSubsequencesCombinations(bitSequence, t);
-	std::cout << pow((mapLengOfSubsequences[1] - n / t), 2) / (n / t) << std::endl;
+	std::cout << "CheckCombinations: " << pow((mapLengOfSubsequences[1] - n / t), 2) / (n / t) << std::endl;
 }

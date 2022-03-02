@@ -141,20 +141,24 @@
   <ItemGroup>
     <ClCompile Include="Lab3.cpp" />
     <ClCompile Include="TestCheckCombinations.cpp" />
+    <ClCompile Include="TestCheckFlatDistribution.cpp" />
     <ClCompile Include="TestCheckIntervals.cpp" />
     <ClCompile Include="TestCheckPermutations.cpp" />
-    <ClCompile Include="TestGathererCoupon.cpp" />
-    <ClCompile Include="TestUnlinkedSeries.cpp" />
+    <ClCompile Include="TestCheckGathererCoupon.cpp" />
+    <ClCompile Include="TestCheckSpectralCriterial.cpp" />
+    <ClCompile Include="TestCheckUnlinkedSeries.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TestCheckCombinations.h" />
+    <ClInclude Include="TestCheckFlatDistribution.h" />
     <ClInclude Include="TestCheckIntervals.h" />
     <ClInclude Include="TestCheckPermutations.h" />
-    <ClInclude Include="TestGathererCoupon.h" />
-    <ClInclude Include="TestUnlinkedSeries.h" />
+    <ClInclude Include="TestCheckGathererCoupon.h" />
+    <ClInclude Include="TestCheckSpectralCriterial.h" />
+    <ClInclude Include="TestCheckUnlinkedSeries.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

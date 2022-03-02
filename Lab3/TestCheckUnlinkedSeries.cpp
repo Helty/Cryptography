@@ -1,10 +1,10 @@
-#include "TestUnlinkedSeries.h"
+#include "TestCheckUnlinkedSeries.h"
 
 void StartCheckUnlinkedSeries(std::string bitSequence)
 {
 	uint16_t m = ToInt(GetSeriesLenght(bitSequence.size()));
 	std::map<std::string, uint16_t> seriesCounter = GetSeriesCounter(bitSequence, m);
-	std::cout << ChiSquareUnlinkedSeries(seriesCounter, bitSequence, m) << std::endl;
+	std::cout << "CheckUnlinkedSeries: " << ChiSquareUnlinkedSeries(seriesCounter, bitSequence, m) << std::endl;
 }
 Serieslength GetSeriesLenght(size_t lengthBits)
 {

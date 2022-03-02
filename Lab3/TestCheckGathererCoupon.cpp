@@ -1,4 +1,4 @@
-#include "TestGathererCoupon.h"
+#include "TestCheckGathererCoupon.h"
 
 std::vector<std::string> getSubSequencesGathererCoupon(std::string bitSequence)
 {
@@ -73,5 +73,5 @@ void StartCheckTestGathererCoupon(std::string bitSequence)
 	std::map<uint16_t, uint16_t> vMap = getLengthOfSubSequenceGathererCoupon(subSequence, t);
 	double vSum = getVSum(vMap);
 	std::vector <double> pVector = getPVector(t);
-	std::cout << ChiSquareGathererCoupon(t, vMap, vSum, pVector) << std::endl;
+	std::cout << "CheckGathererCoupon: " << ChiSquareGathererCoupon(t, vMap, vSum, pVector) << std::endl;
 }

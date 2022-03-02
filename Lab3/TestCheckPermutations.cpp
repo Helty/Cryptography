@@ -51,5 +51,5 @@ void StartCheckPermutations(std::string bitSequence)
 	uint16_t t = 2;
 	std::vector<std::string> subSequences = getSubsequencesPermutations(bitSequence, t);
 	std::map<std::string, uint16_t> vMap = getVMapPermutations(subSequences);
-	std::cout << ChiSquarePermutations(vMap, subSequences, t) << std::endl;
+	std::cout << "CheckPermutations: " << ChiSquarePermutations(vMap, subSequences, t) << std::endl;
 }

@@ -56,5 +56,5 @@ void StartCheckIntervals(std::string bitSequence)
 	uint16_t freedomDegree = 10;
 	std::vector<int16_t> sequenceIntervalLengths = getSequenceIntervalLengths(bitSequence);
 	std::map<uint16_t, int16_t> counterIntervals = getCounterIntervals(sequenceIntervalLengths, freedomDegree);
-	std::cout << ChiSquareIntervals(counterIntervals, interval, freedomDegree) << std::endl;
+	std::cout << "CheckIntervals: " << ChiSquareIntervals(counterIntervals, interval, freedomDegree) << std::endl;
 }
