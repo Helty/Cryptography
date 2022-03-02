@@ -20,7 +20,7 @@ double ChiSquareIntervals(std::map<uint16_t, int16_t> counterIntervals, Interval
 std::map<uint16_t, int16_t> getCounterIntervals(std::vector<int16_t> const& sequenceIntervalLengths, uint16_t freedomDegree)
 {
 	std::map<uint16_t, int16_t> result;
-	for (size_t i = 0; i != freedomDegree; i++) result[i] = 0;
+	for (uint16_t i = 0; i != freedomDegree; i++) result[i] = 0;
 	for (int16_t num : sequenceIntervalLengths)
 	{
 		if (num <= 0)

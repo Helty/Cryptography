@@ -35,7 +35,7 @@ double Fact(double n)
 double ChiSquarePermutations(std::map<std::string, uint16_t> vMap, std::vector<std::string> subSequences, uint16_t t)
 {
 	double result = 0;
-	double length = subSequences.size();
+	double length = (double)subSequences.size();
 	double first = ((double)(length / t) * (1.0 / Fact(t)));
 	for (size_t i = 0; i < t; i++)
 	{

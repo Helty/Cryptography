@@ -31,7 +31,7 @@ std::map<std::string, uint16_t> SetAllÑombinationsOfSerial(uint16_t m)
 
 	uint64_t number = (uint64_t)pow(m, 2);
 	std::string strbits;
-	for (uint64_t i = 0; i <= number; i++)
+	for (uint32_t i = 0; i <= number; i++)
 	{
 		boost::dynamic_bitset<> bits(m, i);
 		boost::to_string(bits, strbits);

@@ -34,24 +34,21 @@ std::vector<std::string> getSubSequencesGathererCoupon(std::string bitSequence)
 std::map<uint16_t, uint16_t> getLengthOfSubSequenceGathererCoupon(std::vector<std::string> subSequence, uint16_t t)
 {
 	std::map<uint16_t, uint16_t> result;
-	for (size_t i = 2; i <= t; i++) result[i] = 0;
+	for (uint16_t i = 2; i <= t; i++) result[i] = 0;
 	for (const auto& sub : subSequence)
 	{
 		if (sub.size() > t) continue;
-		result[sub.size()]++;
+		result[(uint16_t)sub.size()]++;
 	}
 	return result;
 }
 double ChiSquareGathererCoupon(uint16_t t, std::map<uint16_t, uint16_t> lengthOfSubSequence, double vSum, std::vector <double> pVector)
 {
 	double result = 0;
-	for (size_t i = 1; i <= t; i++)
+	for (uint16_t i = 1; i <= t; i++)
 	{
 		double first = vSum * pVector[i - 1];
-		if (first != 0)
-		{
-			result += pow(lengthOfSubSequence[i] - first, 2) / first;
-		}
+		if (first != 0) result += pow(lengthOfSubSequence[i] - first, 2) / first;
 	}
 	return result;
 }
