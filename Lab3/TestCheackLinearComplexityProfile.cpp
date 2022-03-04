@@ -4,7 +4,7 @@ void StartCheackLinearComplexityProfile(std::string key)
 {
 	const int16_t max_N = 100;
 	int16_t s[max_N], c[max_N], b[max_N], t[max_N], buf[max_N], l, m, d;
-	int16_t N = key.size();
+	size_t N = key.size();
 
 	for (int16_t i = 0; i < N; i++)
 	{
@@ -40,7 +40,7 @@ void StartCheackLinearComplexityProfile(std::string key)
 				for (int16_t i = 0; i <= l; i++) b[i] = t[i];
 			}
 		}
-		std::cout << "L= " << l << "\t Sn: ";
+		std::cout << "\tL= " << l << "\t Sn: ";
 		for (int16_t i = 0; i <= n; i++)
 		{
 			std::cout << s[i];

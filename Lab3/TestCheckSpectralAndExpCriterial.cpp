@@ -2,13 +2,13 @@
 
 void PrintCheckExpCriterial(size_t N, std::complex<double>* p)
 {
-	std::cout << "CheckExpCriterial: {";
+	std::cout << "CheckExpCriterial: " << std::endl;
 	for (int16_t i = 0; i < N; i++)
 	{
-		std::cout << std::fixed << std::setprecision(3) << p[i];
-		if (i != N - 1) std::cout << ",";
+		std::cout << "\t" << std::fixed << std::setprecision(3) << p[i];
+		if (i != N - 1) std::cout << std::endl;
 	}
-	std::cout << "}" << std::endl;
+	std::cout << std::endl;
 }
 void PrintCheckSpectralCriterial(size_t N, std::complex<double>* p)
 {

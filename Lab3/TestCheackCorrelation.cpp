@@ -4,8 +4,8 @@ void StartCheackCorrelation(std::string bitSequence)
 {
 	const int16_t max_N = 100;
 	int16_t a[max_N], u[max_N], r[max_N], rr[max_N];
-	int16_t N = bitSequence.size();
-	for (int16_t i = 0; i < N; i++)
+	size_t N = bitSequence.size();
+	for (size_t i = 0; i < N; i++)
 	{
 		if (bitSequence[i] == '1')
 		{
@@ -31,14 +31,14 @@ void StartCheackCorrelation(std::string bitSequence)
 		}
 
 		g = 0;
-		for (int16_t j = 0; j < t; j++)
+		for (size_t j = 0; j < t; j++)
 		{
 			if (rr[j] == 1)	g++;
 		}
-		r[i] = N - i - 2 * g;
+		r[i] = (int16_t)(N - i - 2 * g);
 	}
 
-	int16_t max_r = 0, sq = 0;
+	double max_r = 0, sq = 0;
 	for (int16_t i = 1; i < N; i++)
 	{
 		// max_r
@@ -50,9 +50,9 @@ void StartCheackCorrelation(std::string bitSequence)
 
 	std::cout << "CheackCorrelation: ";
 
-	float R = N / max_r;
+	double R = (double)(N / max_r);
 	std::cout << "R= " << R;
 
-	float MF = N / sqrt(sq);
+	double MF = N / sqrt(sq);
 	std::cout << " MF= " << MF << std::endl;
 }

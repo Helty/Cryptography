@@ -20,6 +20,7 @@ std::map<std::string, uint16_t> getVMapPermutations(std::vector<std::string> sub
 	}
 	for (size_t i = 0; i < 3; i++)
 	{
+		if (i == subSequences.size()) break;
 		result[subSequences[i]] = 0;
 		for (size_t j = 0; j != subSequences.size(); j++)
 		{
