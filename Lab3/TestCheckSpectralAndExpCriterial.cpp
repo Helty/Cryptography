@@ -17,7 +17,7 @@ void PrintCheckSpectralCriterial(size_t N, std::complex<double>* p)
 	e = sqrt(buf);
 	std::cout << "CheckSpectralCriterial: " << "e = " << e.real() << std::endl;
 }
-void StartCheckSpectralCriterial(std::string const& bitSequence)
+void StartCheckSpectralAndExpCriterial(std::string const& bitSequence)
 {
 	const int16_t MAX_N = 100;
 

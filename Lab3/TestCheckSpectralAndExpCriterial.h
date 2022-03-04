@@ -7,4 +7,4 @@
 
 void PrintCheckExpCriterial(size_t N, std::complex<double>* p);
 void PrintCheckSpectralCriterial(size_t N, std::complex<double>* p);
-void StartCheckSpectralCriterial(std::string const& bitSequence);
+void StartCheckSpectralAndExpCriterial(std::string const& bitSequence);

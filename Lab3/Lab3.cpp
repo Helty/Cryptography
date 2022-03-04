@@ -8,7 +8,13 @@
 #include "TestCheckPermutations.h"
 
 #include "TestCheckFlatDistribution.h"
+#include "TestCheackLinearComplexityProfile.h"
+#include "TestCheackMonotone.h"
+#include "TestCheackSeries.h"
+#include "TestCheckHistogramDistribution.h"
+
 #include "TestCheckSpectralAndExpCriterial.h"
+#include "TestCheackCorrelation.h"
 
 std::string getSequenceFromFile(const char* file)
 {
@@ -41,15 +47,19 @@ std::string getBitSequenceFromFile(const char* file)
 
 void StartTests(std::string const& bitSequence)
 {
-	//Knuth
 	StartCheckUnlinkedSeries(bitSequence);
 	StartCheckIntervals(bitSequence);
 	StartCheckCombinations(bitSequence);
 	StartCheckTestGathererCoupon(bitSequence);
 	StartCheckPermutations(bitSequence);
-	//
 	StartCheckFlatDistribution(bitSequence);
-	StartCheckSpectralCriterial(bitSequence);
+	StartCheackLinearComplexityProfile(bitSequence);
+	StartCheckSpectralAndExpCriterial(bitSequence);
+	StartCheackCorrelation(bitSequence);
+
+	//StartCheackMonotone(bitSequence);
+	//StartCheackSeries(bitSequence);
+	//StartCheckHistogramDistribution(bitSequence);
 }
 void ArgChecking(int argc)
 {

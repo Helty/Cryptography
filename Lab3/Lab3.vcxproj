@@ -140,8 +140,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Lab3.cpp" />
+    <ClCompile Include="TestCheackCorrelation.cpp" />
+    <ClCompile Include="TestCheackLinearComplexityProfile.cpp" />
+    <ClCompile Include="TestCheackMonotone.cpp" />
+    <ClCompile Include="TestCheackSeries.cpp" />
     <ClCompile Include="TestCheckCombinations.cpp" />
     <ClCompile Include="TestCheckFlatDistribution.cpp" />
+    <ClCompile Include="TestCheckHistogramDistribution.cpp" />
     <ClCompile Include="TestCheckIntervals.cpp" />
     <ClCompile Include="TestCheckPermutations.cpp" />
     <ClCompile Include="TestCheckGathererCoupon.cpp" />
@@ -152,8 +157,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="TestCheackCorrelation.h" />
+    <ClInclude Include="TestCheackLinearComplexityProfile.h" />
+    <ClInclude Include="TestCheackMonotone.h" />
+    <ClInclude Include="TestCheackSeries.h" />
     <ClInclude Include="TestCheckCombinations.h" />
     <ClInclude Include="TestCheckFlatDistribution.h" />
+    <ClInclude Include="TestCheckHistogramDistribution.h" />
     <ClInclude Include="TestCheckIntervals.h" />
     <ClInclude Include="TestCheckPermutations.h" />
     <ClInclude Include="TestCheckGathererCoupon.h" />
