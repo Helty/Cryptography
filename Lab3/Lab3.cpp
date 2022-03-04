@@ -56,8 +56,8 @@ void StartTests(std::string const& bitSequence)
 	StartCheackLinearComplexityProfile(bitSequence);
 	StartCheckSpectralAndExpCriterial(bitSequence);
 	StartCheackCorrelation(bitSequence);
+	StartCheackMonotone(bitSequence);
 
-	//StartCheackMonotone(bitSequence);
 	//StartCheackSeries(bitSequence);
 	//StartCheckHistogramDistribution(bitSequence);
 }
