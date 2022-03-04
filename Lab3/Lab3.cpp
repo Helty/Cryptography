@@ -58,7 +58,7 @@ void StartTests(std::string const& bitSequence)
 	StartCheackCorrelation(bitSequence);
 	StartCheackMonotone(bitSequence);
 	StartCheackSeries(bitSequence);
-	//StartCheckHistogramDistribution(bitSequence);
+	StartCheckHistogramDistribution(bitSequence);
 }
 void ArgChecking(int argc)
 {
