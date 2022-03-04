@@ -57,8 +57,7 @@ void StartTests(std::string const& bitSequence)
 	StartCheckSpectralAndExpCriterial(bitSequence);
 	StartCheackCorrelation(bitSequence);
 	StartCheackMonotone(bitSequence);
-
-	//StartCheackSeries(bitSequence);
+	StartCheackSeries(bitSequence);
 	//StartCheckHistogramDistribution(bitSequence);
 }
 void ArgChecking(int argc)
@@ -82,8 +81,6 @@ int main(int argc, char * argv[])
 	{
 		ArgChecking(argc);
 		//std::string bitSequence = getBitSequenceFromFile(argv[1]);
-		//std::string NumSequence = getNumSequenceFromFile(argv[1]);
-		//StartTests(bitSequence, NumSequence);
 		StartTests(argv[1]);
 	}
 	catch (const std::exception& e)
