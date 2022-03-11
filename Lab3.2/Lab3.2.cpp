@@ -4,22 +4,32 @@
 #include <string>
 #include <cmath>
 #include <fstream>
+#include <regex>
 
-struct InputData
+namespace
 {
-    uint16_t K = 0;
-    uint16_t S = 0;
-    uint32_t M = 0;
-    uint64_t N = 0;
-};
+    struct InputData
+    {
+        uint16_t K = 0;
+        uint16_t S = 0;
+        uint32_t M = 0;
+        uint64_t N = 0;
+    };
 
-struct Data
-{
-    InputData inputData;
-    std::string fullPolynom;
-    std::vector<std::string> AllFullPolynom;
-    std::string sequenseOfBits;
-};
+    struct MatrixData
+    {
+        uint16_t rowSize;
+        uint16_t colSize;
+    };
+
+    struct Data
+    {
+        InputData inputData;
+        MatrixData matrixData;
+        std::string fullPolynom;
+        std::string sequenseOfBits;
+    };
+}
 
 void CheckAgruments(int argc)
 {
@@ -61,12 +71,12 @@ std::string GeneratePrimitivePolynomial(uint64_t M)
     SECURITY_ATTRIBUTES sa;
     sa.nLength = sizeof(sa);
     sa.lpSecurityDescriptor = NULL;
-    sa.bInheritHandle = TRUE;
+    sa.bInheritHandle = TRUE;                                                                                                                                                               
 
-    std::string exeFile = "D:\\WIN32App\\Cryptography\\Lab3.2\\PrimitivePolynomials\\PrimitivePolynomials.exe";
+    std::string exeFile = "D:\\WIN32App\\Cryptography\\Lab3.2\\PrimitivePolynomials\\PrimitivePolynomials.exe 2";
     std::wstring fileOutPut = L"D:\\WIN32App\\Cryptography\\Lab3.2\\PrimitivePolynomials\\out.txt";
 
-    std::string cmdToExecute = exeFile.append(" " + std::to_string(2)).append(" " + std::to_string(M));
+    std::string cmdToExecute = exeFile.append(" " + std::to_string(M));
     std::wstring cmdToExecuteW = std::wstring(cmdToExecute.begin(), cmdToExecute.end());
 
     HANDLE hFile = CreateFile(fileOutPut.c_str(),
@@ -120,11 +130,73 @@ std::string GeneratePrimitivePolynomial(uint64_t M)
 
     return result;
 }
+
+std::vector<std::string> SearchInStringByRegExp(std::string str, std::regex regExp)
+{
+    std::vector<std::string> result;
+
+    auto words_begin =
+        std::sregex_iterator(str.begin(), str.end(), regExp);
+    auto words_end = std::sregex_iterator();
+
+    for (std::sregex_iterator i = words_begin; i != words_end; ++i) {
+        std::smatch match = *i;
+        std::string match_str = match.str();
+        result.push_back(match_str);
+    }
+
+    return result;
+}
+
+std::vector<uint32_t> GetAllDegrees(std::vector<std::string> foundsNumbers, std::vector<std::string> foundsX)
+{
+    std::vector<uint32_t> result;
+
+    for (size_t i = 0; i < foundsNumbers.size(); i++) if (foundsNumbers[i] == "1") foundsNumbers[i] = "0";
+
+    if (!foundsX.empty()) foundsNumbers.push_back("1");
+
+    for (auto const elem : foundsNumbers)
+    {
+        result.push_back(stoll(elem));
+    }
+
+    std::sort(result.rbegin(), result.rend());
+
+    return result;
+}
+
 std::string GenerateBitSequenseByPolynom(std::string polynom)
 {
     std::string result;
-    
 
+    std::regex searchNumber("[0-9]+");
+    std::regex searchX("x \\+");
+
+    std::vector<std::string> foundsNumbers = SearchInStringByRegExp(polynom, searchNumber);
+    std::vector<std::string> foundsX = SearchInStringByRegExp(polynom, searchX);
+    std::vector<uint32_t> allDegrees = GetAllDegrees(foundsNumbers, foundsX);
+    
+    std::string startSequence;
+
+    for (size_t i = 0; i < allDegrees[0]; i++) startSequence.push_back((i + 1) == allDegrees[0] ? '1' : '0');
+
+    result.append(startSequence);
+    std::sort(allDegrees.begin(), allDegrees.end());
+
+    size_t i = 0;
+    do
+    {
+        int num = 0;
+        for (size_t j = 0; j < allDegrees.size() - 1; j++) num += result[allDegrees[j] + i] - '0';
+        num %= 2;
+        result.append(std::to_string(num));
+        i++;
+
+    } while (startSequence != result.substr(result.length() - allDegrees[allDegrees.size() - 1], result.length()));
+
+    std::sort(allDegrees.rbegin(), allDegrees.rend());
+    result.erase(result.length() - allDegrees[0]);
 
     return result;
 }
@@ -138,6 +210,8 @@ void StartGMW(char* argv[])
     GMWData.inputData.N = pow(2, GMWData.inputData.M) - 1;
     GMWData.fullPolynom = GeneratePrimitivePolynomial(GMWData.inputData.M);
     GMWData.sequenseOfBits = GenerateBitSequenseByPolynom(GMWData.fullPolynom);
+
+    
 }
 
 int main(int argc, char* argv[])
