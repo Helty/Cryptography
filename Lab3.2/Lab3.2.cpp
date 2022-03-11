@@ -5,6 +5,7 @@
 #include <cmath>
 #include <fstream>
 #include <regex>
+#include <array>
 
 namespace
 {
@@ -16,17 +17,25 @@ namespace
         uint64_t N = 0;
     };
 
+    struct PolynomData
+    {
+        std::string polynomByPowerM;
+        std::string polynomByPowerS;
+    };
+
     struct MatrixData
     {
-        uint16_t rowSize;
-        uint16_t colSize;
+        uint16_t rowSize = 0;
+        uint16_t colSize = 0;
+        std::vector<std::vector<uint16_t>> matrixA;
+        std::vector<std::vector<uint16_t>> matrixB;
     };
 
     struct Data
     {
         InputData inputData;
         MatrixData matrixData;
-        std::string fullPolynom;
+        PolynomData polynomData;
         std::string sequenseOfBits;
     };
 }
@@ -166,15 +175,15 @@ std::vector<uint32_t> GetAllDegrees(std::vector<std::string> foundsNumbers, std:
     return result;
 }
 
-std::string GenerateBitSequenseByPolynom(std::string polynom)
+std::string GenerateBitSequenseByPolynom(std::string polynomByPowerM)
 {
     std::string result;
 
     std::regex searchNumber("[0-9]+");
     std::regex searchX("x \\+");
 
-    std::vector<std::string> foundsNumbers = SearchInStringByRegExp(polynom, searchNumber);
-    std::vector<std::string> foundsX = SearchInStringByRegExp(polynom, searchX);
+    std::vector<std::string> foundsNumbers = SearchInStringByRegExp(polynomByPowerM, searchNumber);
+    std::vector<std::string> foundsX = SearchInStringByRegExp(polynomByPowerM, searchX);
     std::vector<uint32_t> allDegrees = GetAllDegrees(foundsNumbers, foundsX);
     
     std::string startSequence;
@@ -201,6 +210,37 @@ std::string GenerateBitSequenseByPolynom(std::string polynom)
     return result;
 }
 
+std::vector<std::string> CutOfBitSequence(std::string bitSequence, uint16_t row)
+{
+    std::vector<std::string> result;
+
+    for (size_t i = 0; i < bitSequence.size(); i += row)
+    {
+        result.push_back(bitSequence.substr(i, row));
+    }
+
+    return result;
+}
+
+std::vector<std::vector<uint16_t>> FillMatrixFromBinSequence(uint16_t col, uint16_t row, std::string bitSequence)
+{
+    std::vector<std::vector<uint16_t>> result;
+
+    std::vector<std::string> vectorOfRowBits = CutOfBitSequence(bitSequence, row);
+
+    for (size_t i = 0; i < row; i++)
+    {
+        std::vector<uint16_t> matrixRow;
+        for (size_t j = 0; j < col; j++)
+        {
+            matrixRow.push_back(vectorOfRowBits[j][i] - '0');
+        }
+        result.push_back(matrixRow);
+    }
+
+    return result;
+}
+
 void StartGMW(char* argv[])
 {
 	Data GMWData;
@@ -208,10 +248,14 @@ void StartGMW(char* argv[])
     GMWData.inputData.S = std::stoll (argv[2]);
     GMWData.inputData.M = GMWData.inputData.S * GMWData.inputData.K;
     GMWData.inputData.N = pow(2, GMWData.inputData.M) - 1;
-    GMWData.fullPolynom = GeneratePrimitivePolynomial(GMWData.inputData.M);
-    GMWData.sequenseOfBits = GenerateBitSequenseByPolynom(GMWData.fullPolynom);
+    GMWData.polynomData.polynomByPowerM = GeneratePrimitivePolynomial(GMWData.inputData.M);
+    GMWData.sequenseOfBits = GenerateBitSequenseByPolynom(GMWData.polynomData.polynomByPowerM);
+    GMWData.matrixData.colSize = pow(2, GMWData.inputData.S) - 1;
+    GMWData.matrixData.rowSize = GMWData.inputData.N / GMWData.matrixData.colSize;
+    GMWData.matrixData.matrixA = FillMatrixFromBinSequence(GMWData.matrixData.colSize, GMWData.matrixData.rowSize, GMWData.sequenseOfBits);
 
-    
+
+
 }
 
 int main(int argc, char* argv[])
