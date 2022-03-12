@@ -347,6 +347,13 @@ std::vector<uint16_t> StringToVector(std::string bitSequence)
     return result;
 }
 
+std::string VectorToString(std::vector<uint16_t> vect)
+{
+    std::string result;
+    for (size_t i = 0; i < vect.size(); i++) result.append(std::to_string(vect[i]));
+    return result;
+}
+
 std::vector <PolynomMirorRowSequence> GetMappingRowSequenceByPolynom(std::vector <std::string> polynomsByPowerS, std::vector<uint16_t> firstRowNonZeros, uint16_t S)
 {
     std::vector <PolynomMirorRowSequence> result;
@@ -432,9 +439,31 @@ Data StartGMW(char* argv[])
     return GMWData;
 }
 
-void PrintGMWData(Data& data)
+void PrintGMWData(Data const& data)
 {
+    system("cls");
 
+    std::cout << "GMW-sequence." << std::endl << std::endl << std::endl;
+
+    std::cout << "K: " << data.inputData.K << std::endl << std::endl;
+    std::cout << "S: " << data.inputData.S << std::endl << std::endl;
+    std::cout << "M: " << data.inputData.M << std::endl << std::endl;
+    std::cout << "N: " << data.inputData.N << std::endl << std::endl;
+
+    std::cout << "Polynom M: " << data.polynomData.selectedPolynomM << std::endl << std::endl;
+    std::cout << "Generated Sequence: " << data.sequenseOfBits << std::endl << std::endl;
+
+    std::cout << "Matrix colum: " << data.matrixData.colSize << std::endl << std::endl;
+    std::cout << "Matrix row: " << data.matrixData.rowSize << std::endl << std::endl;
+    std::cout << "Matrix sequence to rotate: " << VectorToString(data.matrixData.firstRowNonZeros) << std::endl << std::endl;
+    std::cout << "Vector of rotation: " << VectorToString(data.matrixData.vectorOfRotate) << std::endl << std::endl;
+
+    std::cout << "Polynom S: " << data.polynomData.selectedPolynomS.polynomByPowerS << std::endl << std::endl;
+    std::cout << "Start sequence of polynom S: " << data.polynomData.selectedPolynomS.rowBitSequens << std::endl << std::endl;
+
+    std::cout << "Start sequence of polynom S: " << data.polynomData.selectedPolynomS.rowBitSequens << std::endl << std::endl;
+
+    std::cout << "GMW sequence: " << data.GMWSequence << std::endl << std::endl;
 }
 
 int main(int argc, char* argv[])
@@ -442,8 +471,6 @@ int main(int argc, char* argv[])
     setlocale(LC_ALL, ".1251");
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
-
-	std::cout << "GMW-sequence." << std::endl << std::endl;
 
 	try
 	{
