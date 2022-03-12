@@ -1,11 +1,11 @@
 ﻿#include <iostream>
 #include <windows.h>
 #include <vector>
+#include <algorithm>
 #include <string>
 #include <cmath>
 #include <fstream>
 #include <regex>
-#include <array>
 
 namespace
 {
@@ -16,11 +16,20 @@ namespace
         uint32_t M = 0;
         uint64_t N = 0;
     };
+    
+    struct PolynomMirorRowSequence
+    {
+        std::string polynomByPowerS;
+        std::string rowBitSequens;
+    };
 
     struct PolynomData
     {
-        std::string polynomByPowerM;
-        std::string polynomByPowerS;
+        std::vector <std::string> polynomsByPowerM;
+        std::vector <std::string> polynomsByPowerS;
+        std::vector <PolynomMirorRowSequence> polynomsByPowerSAndRowBitsGenereted;
+        std::string selectedPolynomM;
+        std::string selectedPolynomS;
     };
 
     struct MatrixData
@@ -29,6 +38,8 @@ namespace
         uint16_t colSize = 0;
         std::vector<std::vector<uint16_t>> matrixA;
         std::vector<std::vector<uint16_t>> matrixB;
+        std::vector<uint16_t> vectorOfRotate;
+        std::vector<uint16_t> firstRowNonZeros;
     };
 
     struct Data
@@ -52,6 +63,7 @@ void CheckAgruments(int argc)
         throw std::invalid_argument("Invalid arguments count.");
     }
 }
+
 void ValidateArguments(int argc, char* argv[])
 {
     CheckAgruments(argc);
@@ -66,23 +78,25 @@ void ValidateArguments(int argc, char* argv[])
     }
 }
 
-std::string GetfullPolynomFromFile(std::wstring filePath)
+std::vector<std::string> GetAllPolynomialsFromFile(std::wstring filePath)
 {
+    std::vector<std::string> result;
     std::ifstream file(filePath);
-    std::string str((std::istreambuf_iterator<char>(file)),
-        std::istreambuf_iterator<char>());
+    std::string temp;
+    while (getline(file, temp)) result.push_back(temp);
     file.close();
-    return str;
+    return result;
 }
-std::string GeneratePrimitivePolynomial(uint64_t M)
+
+std::vector<std::string> GeneratePrimitivePolynomials(uint64_t M)
 {
-    std::string result = "";
+    std::vector<std::string> result;
     SECURITY_ATTRIBUTES sa;
     sa.nLength = sizeof(sa);
     sa.lpSecurityDescriptor = NULL;
     sa.bInheritHandle = TRUE;                                                                                                                                                               
 
-    std::string exeFile = "D:\\WIN32App\\Cryptography\\Lab3.2\\PrimitivePolynomials\\PrimitivePolynomials.exe 2";
+    std::string exeFile = "D:\\WIN32App\\Cryptography\\Lab3.2\\PrimitivePolynomials\\PrimitivePolynomials.exe -a 2";
     std::wstring fileOutPut = L"D:\\WIN32App\\Cryptography\\Lab3.2\\PrimitivePolynomials\\out.txt";
 
     std::string cmdToExecute = exeFile.append(" " + std::to_string(M));
@@ -121,11 +135,11 @@ std::string GeneratePrimitivePolynomial(uint64_t M)
         &StartupInfo,
         &ProcessInfo))
     {
-        WaitForSingleObject(ProcessInfo.hProcess, INFINITE);
+        WaitForSingleObject(ProcessInfo.hProcess, 5000);
         CloseHandle(ProcessInfo.hThread);
         CloseHandle(ProcessInfo.hProcess);
 
-        result = GetfullPolynomFromFile(fileOutPut);
+        result = GetAllPolynomialsFromFile(fileOutPut);
     }
     else
     {
@@ -157,17 +171,23 @@ std::vector<std::string> SearchInStringByRegExp(std::string str, std::regex regE
     return result;
 }
 
-std::vector<uint32_t> GetAllDegrees(std::vector<std::string> foundsNumbers, std::vector<std::string> foundsX)
+std::vector<uint32_t> GetAllDegrees(std::string polynomByPower)
 {
+    std::regex searchNumber("[0-9]+");
+    std::regex searchX("x \\+");
+
+    std::vector<std::string> foundsNumbers = SearchInStringByRegExp(polynomByPower, searchNumber);
+    std::vector<std::string> foundsX = SearchInStringByRegExp(polynomByPower, searchX);
+
     std::vector<uint32_t> result;
 
     for (size_t i = 0; i < foundsNumbers.size(); i++) if (foundsNumbers[i] == "1") foundsNumbers[i] = "0";
 
     if (!foundsX.empty()) foundsNumbers.push_back("1");
 
-    for (auto const elem : foundsNumbers)
+    for (auto const& elem : foundsNumbers)
     {
-        result.push_back(stoll(elem));
+        result.push_back(static_cast<uint32_t>(stoul(elem)));
     }
 
     std::sort(result.rbegin(), result.rend());
@@ -175,21 +195,9 @@ std::vector<uint32_t> GetAllDegrees(std::vector<std::string> foundsNumbers, std:
     return result;
 }
 
-std::string GenerateBitSequenseByPolynom(std::string polynomByPowerM)
+std::string GenerateBitSequencse(std::vector<uint32_t> allDegrees, std::string startSequence)
 {
     std::string result;
-
-    std::regex searchNumber("[0-9]+");
-    std::regex searchX("x \\+");
-
-    std::vector<std::string> foundsNumbers = SearchInStringByRegExp(polynomByPowerM, searchNumber);
-    std::vector<std::string> foundsX = SearchInStringByRegExp(polynomByPowerM, searchX);
-    std::vector<uint32_t> allDegrees = GetAllDegrees(foundsNumbers, foundsX);
-    
-    std::string startSequence;
-
-    for (size_t i = 0; i < allDegrees[0]; i++) startSequence.push_back((i + 1) == allDegrees[0] ? '1' : '0');
-
     result.append(startSequence);
     std::sort(allDegrees.begin(), allDegrees.end());
 
@@ -210,6 +218,18 @@ std::string GenerateBitSequenseByPolynom(std::string polynomByPowerM)
     return result;
 }
 
+std::string GenerateBitSequenseByPolynomM(std::string polynomByPowerM)
+{
+    std::vector<uint32_t> allDegrees = GetAllDegrees(polynomByPowerM);
+    std::string startSequence;
+
+    for (size_t i = 0; i < allDegrees[0]; i++) startSequence.push_back((i + 1) == allDegrees[0] ? '1' : '0');
+
+    std::string result = GenerateBitSequencse(allDegrees, startSequence);
+
+    return result;
+}
+
 std::vector<std::string> CutOfBitSequence(std::string bitSequence, uint16_t row)
 {
     std::vector<std::string> result;
@@ -225,7 +245,6 @@ std::vector<std::string> CutOfBitSequence(std::string bitSequence, uint16_t row)
 std::vector<std::vector<uint16_t>> FillMatrixFromBinSequence(uint16_t col, uint16_t row, std::string bitSequence)
 {
     std::vector<std::vector<uint16_t>> result;
-
     std::vector<std::string> vectorOfRowBits = CutOfBitSequence(bitSequence, row);
 
     for (size_t i = 0; i < row; i++)
@@ -241,19 +260,137 @@ std::vector<std::vector<uint16_t>> FillMatrixFromBinSequence(uint16_t col, uint1
     return result;
 }
 
+std::string SelectPolynomFromList(std::vector<std::string> polynomList)
+{
+    std::string polynom;
+
+    std::cout << "Select polynom by power W: " << std::endl << std::endl;
+
+    for (size_t i = 0; i < polynomList.size(); i++)
+    {
+        std::cout << i << ": " << polynomList[i] << std::endl;
+    }
+
+    int select;
+    do
+    {
+        std::cin >> select;
+    } while (select >= polynomList.size() or select < 0);
+
+    return polynomList[select];
+}
+
+std::string SelectPolynomFromList(std::vector <PolynomMirorRowSequence> polynomList)
+{
+    std::string polynom;
+
+    std::cout << "Select polynom by power S: " << std::endl << std::endl;
+
+    for (size_t i = 0; i < polynomList.size(); i++)
+    {
+        std::cout << i << ": " << polynomList[i].polynomByPowerS 
+            << ", " << polynomList[i].rowBitSequens << std::endl;
+    }
+
+    int select;
+    do
+    {
+        std::cin >> select;
+    } while (select >= polynomList.size() or select < 0);
+
+    return polynomList[select].polynomByPowerS;
+}
+
+std::vector<uint16_t> GetFirstRowNonZerosFromMatrix(std::vector<std::vector<uint16_t>> matrix)
+{
+    std::vector<uint16_t> result;
+    for (size_t i = 0; i < matrix.size(); i++)
+    {
+        if (std::all_of(matrix[i].begin(), matrix[i].end(), [](uint16_t i) {return i == 0; })) continue;
+        return matrix[i];
+    }
+    throw std::invalid_argument("Non no zeros row.");
+}
+
+std::vector<uint16_t> GetVectorRotateFromMatrix(std::vector<std::vector<uint16_t>> matrix, std::vector<uint16_t> firstRowNonZeros)
+{
+    std::vector<uint16_t> result;
+    
+    for (size_t i = 0; i < matrix.size(); i++)
+    {
+        if (std::all_of(matrix[i].begin(), matrix[i].end(), [](uint16_t i) {return i == 0; }))
+        {
+            result.push_back(-1);
+            continue; //skip all zeros row from start
+        }
+
+        for (size_t j = 0; j < matrix[i].size(); j++)
+        {
+            std::vector<uint16_t> temp = matrix[i];
+            std::rotate(temp.begin(), temp.begin() + j, temp.end());
+            if (temp == firstRowNonZeros)
+            {
+                result.push_back(static_cast<uint16_t>(j));
+                break;
+            }
+        }
+    }
+
+    return result;
+}
+
+std::vector<uint16_t> StringToVector(std::string bitSequence)
+{
+    std::vector<uint16_t> result;
+    for (size_t i = 0; i < bitSequence.size(); i++) result.push_back(bitSequence[i] - '0');
+    return result;
+}
+
+std::vector <PolynomMirorRowSequence> GetMappingRowSequenceByPolynom(std::vector <std::string> polynomsByPowerS, std::vector<uint16_t> firstRowNonZeros, uint16_t S)
+{
+    std::vector <PolynomMirorRowSequence> result;
+
+    std::string startSequence;
+    for (size_t i = 0; i < S; i++) startSequence.append(std::to_string(firstRowNonZeros[i]));
+
+    for (size_t i = 0; i < polynomsByPowerS.size(); i++)
+    {
+        PolynomMirorRowSequence temp;
+        temp.polynomByPowerS = polynomsByPowerS[i];
+        std::vector<uint16_t> bitSequenceByPowerS = StringToVector(GenerateBitSequencse(GetAllDegrees(polynomsByPowerS[i]), startSequence));
+
+        if (bitSequenceByPowerS == firstRowNonZeros) continue;
+
+        temp.rowBitSequens = GenerateBitSequencse(GetAllDegrees(polynomsByPowerS[i]), startSequence);
+
+        result.push_back(temp);
+    }
+
+    return result;
+}
+
 void StartGMW(char* argv[])
 {
 	Data GMWData;
-    GMWData.inputData.K = std::stoll(argv[1]);
-    GMWData.inputData.S = std::stoll (argv[2]);
+    GMWData.inputData.K = static_cast<uint16_t>(std::stoul(argv[1]));
+    GMWData.inputData.S = static_cast<uint16_t>(std::stoul(argv[2]));
     GMWData.inputData.M = GMWData.inputData.S * GMWData.inputData.K;
-    GMWData.inputData.N = pow(2, GMWData.inputData.M) - 1;
-    GMWData.polynomData.polynomByPowerM = GeneratePrimitivePolynomial(GMWData.inputData.M);
-    GMWData.sequenseOfBits = GenerateBitSequenseByPolynom(GMWData.polynomData.polynomByPowerM);
-    GMWData.matrixData.colSize = pow(2, GMWData.inputData.S) - 1;
-    GMWData.matrixData.rowSize = GMWData.inputData.N / GMWData.matrixData.colSize;
-    GMWData.matrixData.matrixA = FillMatrixFromBinSequence(GMWData.matrixData.colSize, GMWData.matrixData.rowSize, GMWData.sequenseOfBits);
+    GMWData.inputData.N = static_cast<uint64_t>(pow(2, GMWData.inputData.M) - 1);
 
+    GMWData.polynomData.polynomsByPowerM = GeneratePrimitivePolynomials(GMWData.inputData.M);
+    GMWData.polynomData.selectedPolynomM = SelectPolynomFromList(GMWData.polynomData.polynomsByPowerM);
+
+    GMWData.sequenseOfBits = GenerateBitSequenseByPolynomM(GMWData.polynomData.selectedPolynomM);
+
+    GMWData.matrixData.colSize = static_cast<uint16_t>(pow(2, GMWData.inputData.S) - 1);
+    GMWData.matrixData.rowSize = static_cast<uint16_t>(GMWData.inputData.N / GMWData.matrixData.colSize);
+    GMWData.matrixData.matrixA = FillMatrixFromBinSequence(GMWData.matrixData.colSize, GMWData.matrixData.rowSize, GMWData.sequenseOfBits);
+    GMWData.matrixData.firstRowNonZeros = GetFirstRowNonZerosFromMatrix(GMWData.matrixData.matrixA);
+    GMWData.matrixData.vectorOfRotate = GetVectorRotateFromMatrix(GMWData.matrixData.matrixA, GMWData.matrixData.firstRowNonZeros);
+
+    GMWData.polynomData.polynomsByPowerS = GeneratePrimitivePolynomials(GMWData.inputData.S);
+    GMWData.polynomData.polynomsByPowerSAndRowBitsGenereted = GetMappingRowSequenceByPolynom(GMWData.polynomData.polynomsByPowerS, GMWData.matrixData.firstRowNonZeros, GMWData.inputData.S);
+    GMWData.polynomData.selectedPolynomS = SelectPolynomFromList(GMWData.polynomData.polynomsByPowerSAndRowBitsGenereted);
 
 
 }
