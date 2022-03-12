@@ -395,11 +395,17 @@ std::string GetGMWSequenceFromMatrixB(std::vector<std::vector<uint16_t>> matrixB
 {
     std::string result;
 
+    for (size_t i = 0; i < matrixB[0].size(); i++)
+    {
+        for (size_t j = 0; j < matrixB.size(); j++)
+        {
+            result.append(std::to_string(matrixB[j][i]));
+        }
+    }
     return result;
 }
 
-
-void StartGMW(char* argv[])
+Data StartGMW(char* argv[])
 {
 	Data GMWData;
     GMWData.inputData.K = static_cast<uint16_t>(std::stoul(argv[1]));
@@ -422,6 +428,13 @@ void StartGMW(char* argv[])
 
     GMWData.matrixData.matrixB = GenerateNewMatrixBySelectedPolynomS(GMWData.matrixData.vectorOfRotate, GMWData.polynomData.selectedPolynomS, GMWData.matrixData.colSize, GMWData.matrixData.rowSize);
     GMWData.GMWSequence = GetGMWSequenceFromMatrixB(GMWData.matrixData.matrixB);
+
+    return GMWData;
+}
+
+void PrintGMWData(Data& data)
+{
+
 }
 
 int main(int argc, char* argv[])
@@ -435,7 +448,8 @@ int main(int argc, char* argv[])
 	try
 	{
 		ValidateArguments(argc, argv);
-		StartGMW(argv);
+        Data GMWdata = StartGMW(argv);
+        PrintGMWData(GMWdata);
 	}
 	catch (std::exception & error)
 	{
