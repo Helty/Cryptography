@@ -27,9 +27,9 @@ namespace
     {
         std::vector <std::string> polynomsByPowerM;
         std::vector <std::string> polynomsByPowerS;
-        std::vector <PolynomMirorRowSequence> polynomsByPowerSAndRowBitsGenereted;
+        std::vector <PolynomMirorRowSequence> vectorPolynomsByPowerS;
+        PolynomMirorRowSequence selectedPolynomS;
         std::string selectedPolynomM;
-        std::string selectedPolynomS;
     };
 
     struct MatrixData
@@ -48,6 +48,7 @@ namespace
         MatrixData matrixData;
         PolynomData polynomData;
         std::string sequenseOfBits;
+        std::string GMWSequence;
     };
 }
 
@@ -280,9 +281,9 @@ std::string SelectPolynomFromList(std::vector<std::string> polynomList)
     return polynomList[select];
 }
 
-std::string SelectPolynomFromList(std::vector <PolynomMirorRowSequence> polynomList)
+PolynomMirorRowSequence SelectPolynomFromList(std::vector <PolynomMirorRowSequence> polynomList)
 {
-    std::string polynom;
+    PolynomMirorRowSequence polynom;
 
     std::cout << "Select polynom by power S: " << std::endl << std::endl;
 
@@ -298,7 +299,7 @@ std::string SelectPolynomFromList(std::vector <PolynomMirorRowSequence> polynomL
         std::cin >> select;
     } while (select >= polynomList.size() or select < 0);
 
-    return polynomList[select].polynomByPowerS;
+    return polynomList[select];
 }
 
 std::vector<uint16_t> GetFirstRowNonZerosFromMatrix(std::vector<std::vector<uint16_t>> matrix)
@@ -365,9 +366,38 @@ std::vector <PolynomMirorRowSequence> GetMappingRowSequenceByPolynom(std::vector
 
         result.push_back(temp);
     }
+    return result;
+}
+
+std::vector<std::vector<uint16_t>> GenerateNewMatrixBySelectedPolynomS(std::vector<uint16_t> vectorOfRotate, PolynomMirorRowSequence selectedPolynomS, uint16_t col, uint16_t row)
+{
+    std::vector<std::vector<uint16_t>> result;
+
+    std::vector<uint16_t> sequenceToRotate = StringToVector(selectedPolynomS.rowBitSequens);
+    std::vector<uint16_t> vectorOfZeros(col, 0);
+    
+    for (size_t i = 0; i < vectorOfRotate.size(); i++)
+    {
+        if (vectorOfRotate[i] == 65535)
+        {
+            result.push_back(vectorOfZeros);
+            continue;
+        }
+        std::vector<uint16_t> temp = sequenceToRotate;
+        std::rotate(temp.rbegin(), temp.rbegin() + vectorOfRotate[i], temp.rend());
+        result.push_back(temp);
+    }
 
     return result;
 }
+
+std::string GetGMWSequenceFromMatrixB(std::vector<std::vector<uint16_t>> matrixB)
+{
+    std::string result;
+
+    return result;
+}
+
 
 void StartGMW(char* argv[])
 {
@@ -377,8 +407,7 @@ void StartGMW(char* argv[])
     GMWData.inputData.M = GMWData.inputData.S * GMWData.inputData.K;
     GMWData.inputData.N = static_cast<uint64_t>(pow(2, GMWData.inputData.M) - 1);
 
-    GMWData.polynomData.polynomsByPowerM = GeneratePrimitivePolynomials(GMWData.inputData.M);
-    GMWData.polynomData.selectedPolynomM = SelectPolynomFromList(GMWData.polynomData.polynomsByPowerM);
+    GMWData.polynomData.selectedPolynomM = SelectPolynomFromList(GeneratePrimitivePolynomials(GMWData.inputData.M));
 
     GMWData.sequenseOfBits = GenerateBitSequenseByPolynomM(GMWData.polynomData.selectedPolynomM);
 
@@ -389,10 +418,10 @@ void StartGMW(char* argv[])
     GMWData.matrixData.vectorOfRotate = GetVectorRotateFromMatrix(GMWData.matrixData.matrixA, GMWData.matrixData.firstRowNonZeros);
 
     GMWData.polynomData.polynomsByPowerS = GeneratePrimitivePolynomials(GMWData.inputData.S);
-    GMWData.polynomData.polynomsByPowerSAndRowBitsGenereted = GetMappingRowSequenceByPolynom(GMWData.polynomData.polynomsByPowerS, GMWData.matrixData.firstRowNonZeros, GMWData.inputData.S);
-    GMWData.polynomData.selectedPolynomS = SelectPolynomFromList(GMWData.polynomData.polynomsByPowerSAndRowBitsGenereted);
+    GMWData.polynomData.selectedPolynomS = SelectPolynomFromList(GetMappingRowSequenceByPolynom(GMWData.polynomData.polynomsByPowerS, GMWData.matrixData.firstRowNonZeros, GMWData.inputData.S));
 
-
+    GMWData.matrixData.matrixB = GenerateNewMatrixBySelectedPolynomS(GMWData.matrixData.vectorOfRotate, GMWData.polynomData.selectedPolynomS, GMWData.matrixData.colSize, GMWData.matrixData.rowSize);
+    GMWData.GMWSequence = GetGMWSequenceFromMatrixB(GMWData.matrixData.matrixB);
 }
 
 int main(int argc, char* argv[])
