@@ -24,26 +24,6 @@ std::string getSequenceFromFile(const char* file)
 	fileIn.close();
 	return str;
 }
-std::string getBinStringOfNumber(uint64_t number)
-{
-	return std::bitset<BIT_COUNT_FOR_NUMBER>(number).to_string();
-}
-std::string getBitSequenceFromString(std::string const& sequence)
-{
-	std::string result;
-	std::vector<std::string> numbersOfSequence;
-	boost::split(numbersOfSequence, sequence, boost::is_any_of("\t ,-"));
-	for (std::string number : numbersOfSequence)
-	{
-		result += getBinStringOfNumber(stoi(number));
-	}
-	return result;
-}
-std::string getBitSequenceFromFile(const char* file)
-{
-	std::string sequence = getSequenceFromFile(file);
-	return getBitSequenceFromString(sequence);
-}
 
 void StartTests(std::string const& bitSequence)
 {
@@ -62,7 +42,7 @@ void StartTests(std::string const& bitSequence)
 	StartCheackLinearComplexityProfile(bitSequence); //должна стремиться к линии N/2, иначе не случайная
 
 	//Разбирали на паре
-	StartCheckSpectralAndExpCriterial(bitSequence); // должна быть минимальана, идеально 0.
+	StartCheckSpectralAndExpCriterial(bitSequence); // должна быть минимальна, идеально 0.
 	StartCheackCorrelation(bitSequence); //MF >= 6 - хорошо; MF <= 1 - плохо. R >= sqrt(N) - хорошо.
 
 }
@@ -71,8 +51,8 @@ void ArgChecking(int argc)
 	if (argc != 2)
 	{
 		std::cout << "Usage: " << std::endl
-			<< "\tLab3.exe <bit sequence>" << std::endl
-			<< "\t\t<bit sequence> - continuous sequence of 0s and 1s." << std::endl;
+			<< "\tLab3.exe <filepath>" << std::endl
+			<< "\t\t<filepath> - continuous sequence of 0s and 1s." << std::endl;
 		throw std::invalid_argument("Invalid arguments count.");
 	}
 }
@@ -86,8 +66,8 @@ int main(int argc, char * argv[])
 	try
 	{
 		ArgChecking(argc);
-		//std::string bitSequence = getBitSequenceFromFile(argv[1]);
-		StartTests(argv[1]);
+		std::string bitSequence = getSequenceFromFile(argv[1]);
+		StartTests(bitSequence);
 	}
 	catch (const std::exception& e)
 	{

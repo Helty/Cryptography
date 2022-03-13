@@ -17,7 +17,7 @@ void StartCheckFlatDistribution(std::string const& NumSequence)
 	std::cout << "CheckFlatDistribution: ";
 	for (Point const& point : points)
 	{
-		std::cout << point.x << "," << point.y << "; ";
+		//std::cout << point.x << "," << point.y << "; ";
 	}
-	std::cout << std::endl;
+	//std::cout << std::endl;
 }

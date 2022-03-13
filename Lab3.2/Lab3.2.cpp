@@ -98,7 +98,7 @@ std::vector<std::string> GeneratePrimitivePolynomials(uint64_t degree)
     sa.bInheritHandle = TRUE;                                                                                                                                                               
 
     std::string exeFile = "PrimitivePolynomials\\PrimitivePolynomials.exe -a 2";
-    std::wstring fileOutPut = L"PrimitivePolynomials\\out.txt";
+    std::wstring fileOutPut = L"PrimitivePolynomials\\AllPrimitivePolynomials.txt";
 
     std::string cmdToExecute = exeFile.append(" " + std::to_string(degree));
     std::wstring cmdToExecuteW = std::wstring(cmdToExecute.begin(), cmdToExecute.end());
@@ -439,7 +439,7 @@ Data StartGMW(char* argv[])
     return GMWData;
 }
 
-void PrintGMWData(Data const& data)
+void PrintGMWInfo(Data const& data)
 {
     system("cls");
 
@@ -451,7 +451,7 @@ void PrintGMWData(Data const& data)
     std::cout << "N: " << data.inputData.N << std::endl << std::endl;
 
     std::cout << "Polynom M: " << data.polynomData.selectedPolynomM << std::endl << std::endl;
-    //std::cout << "Generated Sequence: " << data.sequenseOfBits << std::endl << std::endl;
+    std::cout << "Generated Sequence: " << data.sequenseOfBits << std::endl << std::endl;
 
     std::cout << "Matrix colum: " << data.matrixData.colSize << std::endl << std::endl;
     std::cout << "Matrix row: " << data.matrixData.rowSize << std::endl << std::endl;
@@ -461,7 +461,13 @@ void PrintGMWData(Data const& data)
     std::cout << "Polynom S: " << data.polynomData.selectedPolynomS.polynomByPowerS << std::endl << std::endl;
     std::cout << "Start sequence of polynom S: " << data.polynomData.selectedPolynomS.rowBitSequens << std::endl << std::endl;
 
-    //std::cout << "GMW sequence: " << data.GMWSequence << std::endl << std::endl;
+    std::cout << "GMW sequence: " << data.GMWSequence << std::endl << std::endl;
+}
+
+void PrintGMWSequenceToFile(std::string const& GMW)
+{
+    std::ofstream file("PrimitivePolynomials\\GMW.txt");
+    if (file.is_open()) file << GMW;
 }
 
 int main(int argc, char* argv[])
@@ -474,7 +480,8 @@ int main(int argc, char* argv[])
 	{
 		ValidateArguments(argc, argv);
         Data GMWdata = StartGMW(argv);
-        PrintGMWData(GMWdata);
+        PrintGMWInfo(GMWdata);
+        PrintGMWSequenceToFile(GMWdata.GMWSequence);
 	}
 	catch (std::exception & error)
 	{

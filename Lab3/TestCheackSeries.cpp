@@ -1,12 +1,12 @@
 #include "TestCheackSeries.h"
 
-void countingOnesZeros(std::string bitSequence)
+void countingOnesZeros(std::string const& bitSequence)
 {
     std::cout << "\tseriesByOne: " << std::endl;
     std::cout << "\t0: " << count(bitSequence.begin(), bitSequence.end(), '0') << std::endl
         << "\t1: " << count(bitSequence.begin(), bitSequence.end(), '1') << std::endl;
 }
-void seriesByTwo(std::string bitSequence)
+void seriesByTwo(std::string const& bitSequence)
 {
     std::vector<std::string> pair;
     std::map<std::string, int> result;
@@ -16,7 +16,6 @@ void seriesByTwo(std::string bitSequence)
     {
         std::string s1 = bitSequence.substr(i, 2);
         if (s1.size() != 2) break;
-        std::cout << s1 << " ";
         pair.push_back(s1);
     }
     std::cout << std::endl;
@@ -29,7 +28,7 @@ void seriesByTwo(std::string bitSequence)
         std::cout << "\t" << item.first << ": " << item.second << std::endl;
     }
 }
-void seriesByThree(std::string bitSequence)
+void seriesByThree(std::string const& bitSequence)
 {
     std::map<std::string, int> counter3;
     std::cout << std::endl << "\tseriesByThree: ";
@@ -38,7 +37,6 @@ void seriesByThree(std::string bitSequence)
         std::string s1 = bitSequence.substr(i, 3);
         if (s1.length() == 3) 
         {
-            std::cout << s1 << " ";
             continue;
         }
         break;
@@ -65,24 +63,26 @@ void seriesByThree(std::string bitSequence)
         std::cout << "\t" << item.first << ": " << item.second << std::endl;
     }
 }
-void seriesByFour(std::string bitSequence)
+void seriesByFour(std::string const& bitSequence)
 {
+    std::cout << std::endl << "\tseriesByFour: ";
+    std::vector<std::string> pair;
     std::map<std::string, int> counter4;
     std::cout << std::endl << "";
     for (int i = 0; i != bitSequence.size(); i += 4)
     {
         std::string s1 = bitSequence.substr(i, 4);
-        std::cout << s1 << " ";
+        if (s1.size() != 4) break;
+        pair.push_back(s1);
     }
     std::cout << std::endl;
-    for (int i = 0; i != bitSequence.size(); i += 4)
+    for (auto const& elem : pair)
     {
-        std::string s1 = bitSequence.substr(i, 4);
-        counter4[s1] += 1;
+        counter4[elem]++;
     }
     for (auto& item : counter4)
     {
-        std::cout << "" << item.first << "" << item.second << "" << std::endl;
+        std::cout << "\t" << item.first << ": " << item.second << std::endl;
     }
 }
 void StartCheackSeries(std::string const& bitSequence)
@@ -91,4 +91,5 @@ void StartCheackSeries(std::string const& bitSequence)
     countingOnesZeros(bitSequence);
     seriesByTwo(bitSequence);
     seriesByThree(bitSequence);
+    seriesByFour(bitSequence);
 }
