@@ -139,6 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Chi-Sque.cpp" />
     <ClCompile Include="Lab3.cpp" />
     <ClCompile Include="TestCheackCorrelation.cpp" />
     <ClCompile Include="TestCheackLinearComplexityProfile.cpp" />

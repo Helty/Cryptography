@@ -47,18 +47,24 @@ std::string getBitSequenceFromFile(const char* file)
 
 void StartTests(std::string const& bitSequence)
 {
+	//оценочные тесты Хи-квадрат
 	StartCheckUnlinkedSeries(bitSequence);
 	StartCheckIntervals(bitSequence);
 	StartCheckCombinations(bitSequence);
 	StartCheckTestGathererCoupon(bitSequence);
 	StartCheckPermutations(bitSequence);
-	StartCheckFlatDistribution(bitSequence);
-	StartCheackLinearComplexityProfile(bitSequence);
-	StartCheckSpectralAndExpCriterial(bitSequence);
-	StartCheackCorrelation(bitSequence);
-	StartCheackMonotone(bitSequence);
-	StartCheackSeries(bitSequence);
-	StartCheckHistogramDistribution(bitSequence);
+
+	//графические тесты
+	StartCheckHistogramDistribution(bitSequence); //разброс частот появления стремится к нулю.
+	StartCheckFlatDistribution(bitSequence); //точки должны быть расположены без зависимостей, а хаотично
+	StartCheackSeries(bitSequence); //разбросы между числом появлений нулей и единиц, между появлений серий пар каждого вида должны стремиться к нулю
+	StartCheackMonotone(bitSequence); // чем больше длина, тем меньше вероятность, иначе последовательность не случайна.
+	StartCheackLinearComplexityProfile(bitSequence); //должна стремиться к линии N/2, иначе не случайная
+
+	//Разбирали на паре
+	StartCheckSpectralAndExpCriterial(bitSequence); // должна быть минимальана, идеально 0.
+	StartCheackCorrelation(bitSequence); //MF >= 6 - хорошо; MF <= 1 - плохо. R >= sqrt(N) - хорошо.
+
 }
 void ArgChecking(int argc)
 {

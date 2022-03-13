@@ -2,28 +2,31 @@
 
 void countingOnesZeros(std::string bitSequence)
 {
-    std::cout << "\tZeros: " << count(bitSequence.begin(), bitSequence.end(), '0') << std::endl
-        << "\tOnes: " << count(bitSequence.begin(), bitSequence.end(), '1') << std::endl;
+    std::cout << "\tseriesByOne: " << std::endl;
+    std::cout << "\t0: " << count(bitSequence.begin(), bitSequence.end(), '0') << std::endl
+        << "\t1: " << count(bitSequence.begin(), bitSequence.end(), '1') << std::endl;
 }
 void seriesByTwo(std::string bitSequence)
 {
-    std::map<std::string, int> counter2;
+    std::vector<std::string> pair;
+    std::map<std::string, int> result;
 
     std::cout << std::endl << "\tseriesByTwo: ";
     for (int i = 0; i != bitSequence.size(); i += 2)
     {
         std::string s1 = bitSequence.substr(i, 2);
+        if (s1.size() != 2) break;
         std::cout << s1 << " ";
+        pair.push_back(s1);
     }
     std::cout << std::endl;
-    for (int i = 0; i != bitSequence.size(); i += 2)
+    for (auto const& elem: pair)
     {
-        std::string s1 = bitSequence.substr(i, 2);
-        counter2[s1] += 1;
+        result[elem]++;
     }
-    for (auto& item : counter2)
+    for (auto const& item : result)
     {
-        std::cout << "\t" << item.first << " " << item.second << std::endl;
+        std::cout << "\t" << item.first << ": " << item.second << std::endl;
     }
 }
 void seriesByThree(std::string bitSequence)
@@ -59,7 +62,7 @@ void seriesByThree(std::string bitSequence)
     }
     for (auto& item : counter3)
     {
-        std::cout << "\t" << item.first << " " << item.second << std::endl;
+        std::cout << "\t" << item.first << ": " << item.second << std::endl;
     }
 }
 void seriesByFour(std::string bitSequence)

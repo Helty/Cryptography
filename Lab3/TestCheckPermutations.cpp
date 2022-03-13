@@ -49,8 +49,8 @@ double ChiSquarePermutations(std::map<std::string, uint16_t> vMap, std::vector<s
 }
 void StartCheckPermutations(std::string bitSequence)
 {
-	uint16_t t = 2;
+	uint16_t t = 3;
 	std::vector<std::string> subSequences = getSubsequencesPermutations(bitSequence, t);
 	std::map<std::string, uint16_t> vMap = getVMapPermutations(subSequences);
-	std::cout << "CheckPermutations: " << ChiSquarePermutations(vMap, subSequences, t) << std::endl;
+	std::cout << "CheckPermutations(степени свободы: " << Fact(t) - 1 << "): " << ChiSquarePermutations(vMap, subSequences, t) << std::endl;
 }

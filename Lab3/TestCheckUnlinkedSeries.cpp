@@ -2,18 +2,12 @@
 
 void StartCheckUnlinkedSeries(std::string bitSequence)
 {
-	uint16_t m = ToInt(GetSeriesLenght(bitSequence.size()));
+	uint16_t m = 3;
 	std::map<std::string, uint16_t> seriesCounter = GetSeriesCounter(bitSequence, m);
-	std::cout << "CheckUnlinkedSeries: " << ChiSquareUnlinkedSeries(seriesCounter, bitSequence, m) << std::endl;
+	boost::math::inverse_chi_squared(0.9, 50);
+	std::cout << "CheckUnlinkedSeries(ÒÚÂÔÂÌ¸ Ò‚Ó·Ó‰˚ " << pow(2,m) - 1 << "): " << ChiSquareUnlinkedSeries(seriesCounter, bitSequence, m) << std::endl;
 }
-Serieslength GetSeriesLenght(size_t lengthBits)
-{
-	return Serieslength::THREE;
-}
-uint16_t ToInt(Serieslength m)
-{
-	return static_cast<uint16_t>(m);
-}
+
 std::map<std::string, uint16_t> GetSeriesCounter(std::string bitSequence, uint16_t m)
 {
 	std::map<std::string, uint16_t> result = SetAll—ombinationsOfSerial(m);
