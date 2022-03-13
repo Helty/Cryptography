@@ -97,8 +97,8 @@ std::vector<std::string> GeneratePrimitivePolynomials(uint64_t degree)
     sa.lpSecurityDescriptor = NULL;
     sa.bInheritHandle = TRUE;                                                                                                                                                               
 
-    std::string exeFile = "D:\\WIN32App\\Cryptography\\Lab3.2\\PrimitivePolynomials\\PrimitivePolynomials.exe -a 2";
-    std::wstring fileOutPut = L"D:\\WIN32App\\Cryptography\\Lab3.2\\PrimitivePolynomials\\out.txt";
+    std::string exeFile = "PrimitivePolynomials\\PrimitivePolynomials.exe -a 2";
+    std::wstring fileOutPut = L"PrimitivePolynomials\\out.txt";
 
     std::string cmdToExecute = exeFile.append(" " + std::to_string(degree));
     std::wstring cmdToExecuteW = std::wstring(cmdToExecute.begin(), cmdToExecute.end());
@@ -136,11 +136,10 @@ std::vector<std::string> GeneratePrimitivePolynomials(uint64_t degree)
         &StartupInfo,
         &ProcessInfo))
     {
-        WaitForSingleObject(ProcessInfo.hProcess, 20000);
+        WaitForSingleObject(ProcessInfo.hProcess, 5000);
         TerminateProcess(ProcessInfo.hProcess, 0);
         CloseHandle(ProcessInfo.hThread);
         CloseHandle(ProcessInfo.hProcess);
-
         result = GetAllPolynomialsFromFile(fileOutPut);
     }
     else
