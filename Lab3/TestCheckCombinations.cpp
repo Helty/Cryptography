@@ -1,4 +1,5 @@
 #include "TestCheckCombinations.h"
+#include "alglib-cpp/specialfunctions.h"
 
 std::vector<std::string> GetSubsequencesCombinations(std::string const& bitSequence, uint16_t t)
 {
@@ -41,5 +42,5 @@ void StartCheckCombinations(std::string const& bitSequence)
 	uint16_t t = 4;
 	std::vector<std::string> subSequences = GetSubsequencesCombinations(bitSequence, t);
 	std::map<uint16_t, uint16_t> mapLengOfSubsequences = GetLengOfSubsequencesCombinations(subSequences);
-	std::cout << "CheckCombinations(степени свободы: " << subSequences.size()-1 << "): " << pow((mapLengOfSubsequences[1] - n / t), 2) / (n / t) << std::endl;
+	std::cout << "CheckCombinations: " << alglib::chisquarecdistribution(subSequences.size() - 1, pow((mapLengOfSubsequences[1] - n / t), 2) / (n / t)) << std::endl;
 }

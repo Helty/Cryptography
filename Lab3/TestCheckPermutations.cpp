@@ -1,4 +1,5 @@
 #include "TestCheckPermutations.h"
+#include "alglib-cpp/specialfunctions.h"
 
 std::vector<std::string> GetSubsequencesPermutations(std::string const& bitSequence, uint16_t t)
 {
@@ -56,5 +57,5 @@ void StartCheckPermutations(std::string const& bitSequence)
 	uint16_t t = 3;
 	std::vector<std::string> subSequences = GetSubsequencesPermutations(bitSequence, t);
 	std::map<std::string, uint16_t> vMap = GetVMapPermutations(subSequences);
-	std::cout << "CheckPermutations(степени свободы: " << Fact(t) - 1 << "): " << ChiSquarePermutations(vMap, subSequences, t) << std::endl;
+	std::cout << "CheckPermutations: " << alglib::chisquarecdistribution(Fact(t) - 1, ChiSquarePermutations(vMap, subSequences, t)) << std::endl;
 }

@@ -1,11 +1,12 @@
 #include "TestCheckUnlinkedSeries.h"
+#include "alglib-cpp/specialfunctions.h"
 
 void StartCheckUnlinkedSeries(std::string const& bitSequence)
 {
 	uint16_t m = 3;
 	std::map<std::string, uint16_t> seriesCounter = GetSeriesCounter(bitSequence, m);
 	boost::math::inverse_chi_squared(0.9, 50);
-	std::cout << "CheckUnlinkedSeries(степень свободы " << pow(2,m) - 1 << "): " << ChiSquareUnlinkedSeries(seriesCounter, bitSequence, m) << std::endl;
+	std::cout << "CheckUnlinkedSeries: " << alglib::chisquarecdistribution((pow(2, m) - 1), ChiSquareUnlinkedSeries(seriesCounter, bitSequence, m)) << std::endl;
 }
 
 std::map<std::string, uint16_t> GetSeriesCounter(std::string const& bitSequence, uint16_t m)

@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Исходные файлы\algLib">
+      <UniqueIdentifier>{e4428f4c-9f8f-49a6-8517-f3f2ecffd71f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\algLib">
+      <UniqueIdentifier>{0ed27e16-fb82-4ee0-a1a9-4fdcbd0b846f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Lab3.cpp">
@@ -54,6 +60,54 @@
     <ClCompile Include="TestCheackCorrelation.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="alglib-cpp\alglibinternal.cpp">
+      <Filter>Исходные файлы\algLib</Filter>
+    </ClCompile>
+    <ClCompile Include="alglib-cpp\alglibmisc.cpp">
+      <Filter>Исходные файлы\algLib</Filter>
+    </ClCompile>
+    <ClCompile Include="alglib-cpp\ap.cpp">
+      <Filter>Исходные файлы\algLib</Filter>
+    </ClCompile>
+    <ClCompile Include="alglib-cpp\dataanalysis.cpp">
+      <Filter>Исходные файлы\algLib</Filter>
+    </ClCompile>
+    <ClCompile Include="alglib-cpp\diffequations.cpp">
+      <Filter>Исходные файлы\algLib</Filter>
+    </ClCompile>
+    <ClCompile Include="alglib-cpp\fasttransforms.cpp">
+      <Filter>Исходные файлы\algLib</Filter>
+    </ClCompile>
+    <ClCompile Include="alglib-cpp\integration.cpp">
+      <Filter>Исходные файлы\algLib</Filter>
+    </ClCompile>
+    <ClCompile Include="alglib-cpp\interpolation.cpp">
+      <Filter>Исходные файлы\algLib</Filter>
+    </ClCompile>
+    <ClCompile Include="alglib-cpp\kernels_avx2.cpp">
+      <Filter>Исходные файлы\algLib</Filter>
+    </ClCompile>
+    <ClCompile Include="alglib-cpp\kernels_fma.cpp">
+      <Filter>Исходные файлы\algLib</Filter>
+    </ClCompile>
+    <ClCompile Include="alglib-cpp\kernels_sse2.cpp">
+      <Filter>Исходные файлы\algLib</Filter>
+    </ClCompile>
+    <ClCompile Include="alglib-cpp\linalg.cpp">
+      <Filter>Исходные файлы\algLib</Filter>
+    </ClCompile>
+    <ClCompile Include="alglib-cpp\optimization.cpp">
+      <Filter>Исходные файлы\algLib</Filter>
+    </ClCompile>
+    <ClCompile Include="alglib-cpp\solvers.cpp">
+      <Filter>Исходные файлы\algLib</Filter>
+    </ClCompile>
+    <ClCompile Include="alglib-cpp\specialfunctions.cpp">
+      <Filter>Исходные файлы\algLib</Filter>
+    </ClCompile>
+    <ClCompile Include="alglib-cpp\statistics.cpp">
+      <Filter>Исходные файлы\algLib</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -94,6 +148,57 @@
     </ClInclude>
     <ClInclude Include="TestCheackCorrelation.h">
       <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="alglib-cpp\alglibinternal.h">
+      <Filter>Файлы заголовков\algLib</Filter>
+    </ClInclude>
+    <ClInclude Include="alglib-cpp\alglibmisc.h">
+      <Filter>Файлы заголовков\algLib</Filter>
+    </ClInclude>
+    <ClInclude Include="alglib-cpp\ap.h">
+      <Filter>Файлы заголовков\algLib</Filter>
+    </ClInclude>
+    <ClInclude Include="alglib-cpp\dataanalysis.h">
+      <Filter>Файлы заголовков\algLib</Filter>
+    </ClInclude>
+    <ClInclude Include="alglib-cpp\diffequations.h">
+      <Filter>Файлы заголовков\algLib</Filter>
+    </ClInclude>
+    <ClInclude Include="alglib-cpp\fasttransforms.h">
+      <Filter>Файлы заголовков\algLib</Filter>
+    </ClInclude>
+    <ClInclude Include="alglib-cpp\integration.h">
+      <Filter>Файлы заголовков\algLib</Filter>
+    </ClInclude>
+    <ClInclude Include="alglib-cpp\interpolation.h">
+      <Filter>Файлы заголовков\algLib</Filter>
+    </ClInclude>
+    <ClInclude Include="alglib-cpp\kernels_avx2.h">
+      <Filter>Файлы заголовков\algLib</Filter>
+    </ClInclude>
+    <ClInclude Include="alglib-cpp\kernels_fma.h">
+      <Filter>Файлы заголовков\algLib</Filter>
+    </ClInclude>
+    <ClInclude Include="alglib-cpp\kernels_sse2.h">
+      <Filter>Файлы заголовков\algLib</Filter>
+    </ClInclude>
+    <ClInclude Include="alglib-cpp\linalg.h">
+      <Filter>Файлы заголовков\algLib</Filter>
+    </ClInclude>
+    <ClInclude Include="alglib-cpp\optimization.h">
+      <Filter>Файлы заголовков\algLib</Filter>
+    </ClInclude>
+    <ClInclude Include="alglib-cpp\solvers.h">
+      <Filter>Файлы заголовков\algLib</Filter>
+    </ClInclude>
+    <ClInclude Include="alglib-cpp\specialfunctions.h">
+      <Filter>Файлы заголовков\algLib</Filter>
+    </ClInclude>
+    <ClInclude Include="alglib-cpp\statistics.h">
+      <Filter>Файлы заголовков\algLib</Filter>
+    </ClInclude>
+    <ClInclude Include="alglib-cpp\stdafx.h">
+      <Filter>Файлы заголовков\algLib</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

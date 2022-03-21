@@ -1,4 +1,5 @@
 #include "TestCheckGathererCoupon.h"
+#include "alglib-cpp/specialfunctions.h"
 
 std::vector<std::string> GetSubSequencesGathererCoupon(std::string const& bitSequence)
 {
@@ -78,5 +79,5 @@ void StartCheckTestGathererCoupon(std::string const& bitSequence)
 	std::map<uint16_t, uint16_t> vMap = GetLengthOfSubSequenceGathererCoupon(subSequence, t);
 	double vSum = GetVSum(vMap);
 	std::vector <double> pVector = GetPVector(t);
-	std::cout << "CheckGathererCoupon(степени свободы: " << t - 2 + 1 << "): " << ChiSquareGathererCoupon(t, vMap, vSum, pVector) << std::endl;
+	std::cout << "CheckGathererCoupon: " << alglib::chisquarecdistribution(t - 2 + 1, ChiSquareGathererCoupon(t, vMap, vSum, pVector)) << std::endl;
 }

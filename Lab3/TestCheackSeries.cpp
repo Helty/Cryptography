@@ -37,23 +37,17 @@ void SeriesByThree(std::string const& bitSequence)
     for (int i = 0; i != bitSequence.size(); i += 3)
     {
         std::string s1 = bitSequence.substr(i, 3);
-        if (s1.length() == 3) 
-        {
-            continue;
-        }
+        if (s1.length() == 3)  continue;
         break;
 
     };
-    if (bitSequence.size() % 3 != 0)
-    {
-        std::cout << bitSequence.substr(bitSequence.size() - bitSequence.size() % 3, bitSequence.back());
-    }
+
     std::cout << std::endl;
     for (int i = 0; i != bitSequence.size(); i += 3)
     {
         std::string s1 = bitSequence.substr(i, 3);
-        if (s1.length() == 3) {
-
+        if (s1.length() == 3) 
+        {
             counter3[s1] += 1;
             continue;
         }
@@ -71,7 +65,6 @@ void SeriesByFour(std::string const& bitSequence)
     std::cout << std::endl << "\tseriesByFour: ";
     std::vector<std::string> pair;
     std::map<std::string, int> counter4;
-    std::cout << std::endl << "";
 
     for (int i = 0; i != bitSequence.size(); i += 4)
     {
@@ -79,12 +72,14 @@ void SeriesByFour(std::string const& bitSequence)
         if (s1.size() != 4) break;
         pair.push_back(s1);
     }
+
     std::cout << std::endl;
 
     for (auto const& elem : pair)
     {
         counter4[elem]++;
     }
+
     for (auto& item : counter4)
     {
         std::cout << "\t" << item.first << ": " << item.second << std::endl;

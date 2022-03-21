@@ -2,13 +2,13 @@
 
 void PrintCheckExpCriterial(int64_t N, std::vector<std::complex<double>> const& p)
 {
-	std::cout << "CheckExpCriterial: " << std::endl;
-	for (int64_t i = 0; i < N; i++)
+	std::cout << "CheckExpCriterial: count of points - " << p.size() << std::endl;
+	/*for (int64_t i = 0; i < N; i++)
 	{
 		std::cout << "\t" << std::fixed << std::setprecision(3) << p[i];
 		if (i != N - 1) std::cout << std::endl;
 	}
-	std::cout << std::endl;
+	std::cout << std::endl;*/
 }
 
 void PrintCheckSpectralCriterial(int64_t N, std::vector<std::complex<double>> const& p)

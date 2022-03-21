@@ -15,7 +15,7 @@ std::vector<Point> GetPointsFlatDistribution(std::string const& NumSequence)
 void StartCheckFlatDistribution(std::string const& NumSequence)
 {
 	std::vector<Point> points = GetPointsFlatDistribution(NumSequence);
-	std::cout << "CheckFlatDistribution: count of points - " << points.size();
+	std::cout << "CheckFlatDistribution: count of points - " << points.size() << std::endl;
 
 	/*for (Point const& point : points)
 	{
