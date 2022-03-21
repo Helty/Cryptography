@@ -3,8 +3,9 @@
 #include <cmath>
 #include <iostream>
 #include <complex>
+#include <vector>
 #include <iomanip>
 
-void PrintCheckExpCriterial(size_t N, std::complex<double>* p);
-void PrintCheckSpectralCriterial(size_t N, std::complex<double>* p);
+void PrintCheckExpCriterial(int64_t N, std::vector<std::complex<double>> p);
+void PrintCheckSpectralCriterial(int64_t N, std::vector<std::complex<double>> p);
 void StartCheckSpectralAndExpCriterial(std::string const& bitSequence);
