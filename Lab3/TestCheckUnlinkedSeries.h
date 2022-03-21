@@ -13,7 +13,10 @@
 
 const size_t BIT_COUNT_FOR_NUMBER = 4;
 
-double ChiSquareUnlinkedSeries(std::map<std::string, uint16_t> seriesCounter, std::string bitSequence, uint16_t m);
+double ChiSquareUnlinkedSeries(std::map<std::string, uint16_t> const& seriesCounter, std::string const& bitSequence, uint16_t m);
+
 std::map<std::string, uint16_t> SetAll—ombinationsOfSerial(uint16_t m);
-std::map<std::string, uint16_t> GetSeriesCounter(std::string bitSequence, uint16_t m);
-void StartCheckUnlinkedSeries(std::string bitSequence);
+
+std::map<std::string, uint16_t> GetSeriesCounter(std::string const& bitSequence, uint16_t m);
+
+void StartCheckUnlinkedSeries(std::string const& bitSequence);

@@ -10,6 +10,8 @@ struct Area
     std::string subSequense;
 };
 
-std::vector<Area> monotonicityCheck(std::string);
-void printoutResult(std::vector<Area> res);
-void StartCheackMonotone(std::string bitSequence);
+std::vector<Area> MonotonicityCheck(std::string const& bitSequense);
+
+void PrintResultMonotone(std::vector<Area> const& res);
+
+void StartCheackMonotone(std::string const& bitSequence);

@@ -4,8 +4,12 @@
 #include "iostream"
 #include "map"
 
-void countingOnesZeros(std::string const& bitSequence);
-void seriesByTwo(std::string const& bitSequence);
-void seriesByThree(std::string const& bitSequence);
-void seriesByFour(std::string const& bitSequence);
+void CountingOnesZeros(std::string const& bitSequence);
+
+void SeriesByTwo(std::string const& bitSequence);
+
+void SeriesByThree(std::string const& bitSequence);
+
+void SeriesByFour(std::string const& bitSequence);
+
 void StartCheackSeries(std::string const& bitSequence);

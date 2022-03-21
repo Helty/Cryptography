@@ -16,9 +16,9 @@
 #include "TestCheckSpectralAndExpCriterial.h"
 #include "TestCheackCorrelation.h"
 
-std::string getSequenceFromFile(const char* file)
+std::string GetSequenceFromFile(std::string const& filePath)
 {
-	std::ifstream fileIn(file);
+	std::ifstream fileIn(filePath);
 	std::string str((std::istreambuf_iterator<char>(fileIn)),
 		std::istreambuf_iterator<char>());
 	fileIn.close();
@@ -42,10 +42,10 @@ void StartTests(std::string const& bitSequence)
 	StartCheackLinearComplexityProfile(bitSequence); //должна стремиться к линии N/2, иначе не случайная
 
 	//Разбирали на паре
-	StartCheckSpectralAndExpCriterial(bitSequence); // должна быть минимальна, идеально 0.
 	StartCheackCorrelation(bitSequence); //MF >= 6 - хорошо; MF <= 1 - плохо. R >= sqrt(N) - хорошо.
-
+	StartCheckSpectralAndExpCriterial(bitSequence); // должна быть минимальна, идеально 0.
 }
+
 void ArgChecking(int argc)
 {
 	if (argc != 2)
@@ -59,14 +59,13 @@ void ArgChecking(int argc)
 
 int main(int argc, char * argv[])
 {
-	setlocale(LC_ALL, ".1251");
 	SetConsoleCP(1251);
 	SetConsoleOutputCP(1251);
 
 	try
 	{
 		ArgChecking(argc);
-		std::string bitSequence = getSequenceFromFile(argv[1]);
+		std::string bitSequence = GetSequenceFromFile(argv[1]);
 		StartTests(bitSequence);
 	}
 	catch (const std::exception& e)

@@ -1,12 +1,13 @@
 #include "TestCheackSeries.h"
 
-void countingOnesZeros(std::string const& bitSequence)
+void CountingOnesZeros(std::string const& bitSequence)
 {
     std::cout << "\tseriesByOne: " << std::endl;
     std::cout << "\t0: " << count(bitSequence.begin(), bitSequence.end(), '0') << std::endl
         << "\t1: " << count(bitSequence.begin(), bitSequence.end(), '1') << std::endl;
 }
-void seriesByTwo(std::string const& bitSequence)
+
+void SeriesByTwo(std::string const& bitSequence)
 {
     std::vector<std::string> pair;
     std::map<std::string, int> result;
@@ -28,7 +29,8 @@ void seriesByTwo(std::string const& bitSequence)
         std::cout << "\t" << item.first << ": " << item.second << std::endl;
     }
 }
-void seriesByThree(std::string const& bitSequence)
+
+void SeriesByThree(std::string const& bitSequence)
 {
     std::map<std::string, int> counter3;
     std::cout << std::endl << "\tseriesByThree: ";
@@ -63,12 +65,14 @@ void seriesByThree(std::string const& bitSequence)
         std::cout << "\t" << item.first << ": " << item.second << std::endl;
     }
 }
-void seriesByFour(std::string const& bitSequence)
+
+void SeriesByFour(std::string const& bitSequence)
 {
     std::cout << std::endl << "\tseriesByFour: ";
     std::vector<std::string> pair;
     std::map<std::string, int> counter4;
     std::cout << std::endl << "";
+
     for (int i = 0; i != bitSequence.size(); i += 4)
     {
         std::string s1 = bitSequence.substr(i, 4);
@@ -76,6 +80,7 @@ void seriesByFour(std::string const& bitSequence)
         pair.push_back(s1);
     }
     std::cout << std::endl;
+
     for (auto const& elem : pair)
     {
         counter4[elem]++;
@@ -85,11 +90,12 @@ void seriesByFour(std::string const& bitSequence)
         std::cout << "\t" << item.first << ": " << item.second << std::endl;
     }
 }
+
 void StartCheackSeries(std::string const& bitSequence)
 {
     std::cout << "CheackSeries: " << std::endl;
-    countingOnesZeros(bitSequence);
-    seriesByTwo(bitSequence);
-    seriesByThree(bitSequence);
-    seriesByFour(bitSequence);
+    CountingOnesZeros(bitSequence);
+    SeriesByTwo(bitSequence);
+    SeriesByThree(bitSequence);
+    SeriesByFour(bitSequence);
 }

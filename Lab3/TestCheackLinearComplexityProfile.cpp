@@ -1,14 +1,14 @@
 #include "TestCheackLinearComplexityProfile.h"
 
-void StartCheackLinearComplexityProfile(std::string key)
+void StartCheackLinearComplexityProfile(std::string const& bitSequence)
 {
 	int64_t l, m, d = 0;
 	std::vector<int64_t> s, c, b, t, buf;
-	int64_t N = key.size();
+	int64_t N = bitSequence.size();
 
 	for (int64_t i = 0; i < N; i++)
 	{
-		s.push_back((key[i] == '1') ? 1 : 0);
+		s.push_back((bitSequence[i] == '1') ? 1 : 0);
 	}
 
 	for (int64_t i = 0; i <= N; i++)

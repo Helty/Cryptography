@@ -1,6 +1,6 @@
 #include "TestCheckSpectralAndExpCriterial.h"
 
-void PrintCheckExpCriterial(int64_t N, std::vector<std::complex<double>> p)
+void PrintCheckExpCriterial(int64_t N, std::vector<std::complex<double>> const& p)
 {
 	std::cout << "CheckExpCriterial: " << std::endl;
 	for (int64_t i = 0; i < N; i++)
@@ -10,13 +10,16 @@ void PrintCheckExpCriterial(int64_t N, std::vector<std::complex<double>> p)
 	}
 	std::cout << std::endl;
 }
-void PrintCheckSpectralCriterial(int64_t N, std::vector<std::complex<double>> p)
+
+void PrintCheckSpectralCriterial(int64_t N, std::vector<std::complex<double>> const& p)
 {
 	std::complex<double> e, buf = 0;
 	for (int64_t m = 0; m < N; m++) buf += pow(abs(p[m]) - sqrt(N), 2);
 	e = sqrt(buf);
-	std::cout << "CheckSpectralCriterial: " << "e = " << e.real() << std::endl;
+	std::cout << "CheckSpectralCriterial: " << std::endl;
+	std::cout << "\te = " << e.real() << std::endl;
 }
+
 void StartCheckSpectralAndExpCriterial(std::string const& bitSequence)
 {
 	std::vector<std::complex<double>> u;

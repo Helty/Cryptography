@@ -1,6 +1,6 @@
 #include "TestCheackMonotone.h"
 
-std::vector<Area> monotonicityCheck(std::string bitSequense)
+std::vector<Area> MonotonicityCheck(std::string const& bitSequense)
 {
     std::vector<Area> res;
     Area monoArea={};
@@ -40,7 +40,8 @@ std::vector<Area> monotonicityCheck(std::string bitSequense)
     }
     return res;
 }
-void printoutResult(std::vector<Area> res) 
+
+void PrintResultMonotone(std::vector<Area> const& res)
 {
     std::cout << "CheackMonotone: " << std::endl;
     for (auto item : res)
@@ -48,8 +49,9 @@ void printoutResult(std::vector<Area> res)
         std::cout << "\t" << item.upOrDown << ":" << item.areaLen << "; " << std::endl;
     }
 }
-void StartCheackMonotone(std::string bitSequence)
+
+void StartCheackMonotone(std::string const& bitSequence)
 {
-    std::vector<Area> result = monotonicityCheck(bitSequence);
-    printoutResult(result);
+    std::vector<Area> result = MonotonicityCheck(bitSequence);
+    PrintResultMonotone(result);
 }

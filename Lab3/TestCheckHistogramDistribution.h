@@ -16,18 +16,18 @@ struct SequenceHistogram
     std::vector<int> sequence_ascii;
 };
 
-void PrintResult(std::vector<int> ASCIIBitVector);
-void PrintResult(SequenceHistogram const& seq);
+void PrintResultHistogramDistribution(std::vector<int> const& ASCIIBitVector);
+void PrintResultHistogramDistribution(SequenceHistogram const& seq);
 
-bool isBitSequence(std::string const& sequence);
+bool IsBitSequenceHistogramDistribution(std::string const& sequence);
 
-std::vector<int> getSequenceFromFile(std::string seqStr);
-std::vector<char> getSequenceFromFile_char(std::string seqStr);
+std::vector<int> GetSequenceFromFileHistogramDistribution(std::string const& seqStr);
+std::vector<char> GetSequenceFromFileCharHistogramDistribution(std::string seqStr);
 
-std::vector<int> makeSeqWithUniqueElems(std::vector<int> vect0);
-std::vector<char> makeSeqWithUniqueElems_char(std::vector<char> vect0);
+std::vector<int> MakeSeqWithUniqueElemsHistogramDistribution(std::vector<int> const& vect0);
+std::vector<char> MakeSeqWithUniqueElemsCharHistogramDistribution(std::vector<char> const& vect0);
 
-std::vector<int> makeUniqueASCIISeq(std::string vect0);
-std::vector<int> makeUniqueASCIISeq(std::vector<char> vect0);
+std::vector<int> MakeUniqueASCIISeqHistogramDistribution(std::string const& vect0);
+std::vector<int> MakeUniqueASCIISeqHistogramDistribution(std::vector<char> const& vect0);
 
 void StartCheckHistogramDistribution(std::string const& bitSequence);

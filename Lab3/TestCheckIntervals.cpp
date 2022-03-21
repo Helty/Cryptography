@@ -1,6 +1,6 @@
 #include "TestCheckIntervals.h"
 
-double ChiSquareIntervals(std::map<uint16_t, int16_t> counterIntervals, Interval interval, uint16_t freedomDegree)
+double ChiSquareIntervals(std::map<uint16_t, int16_t> const& counterIntervals, Interval const& interval, uint16_t freedomDegree)
 {
 	double result = 0;
 	uint64_t totalNumberIntervals = 0;
@@ -17,7 +17,8 @@ double ChiSquareIntervals(std::map<uint16_t, int16_t> counterIntervals, Interval
 	}
 	return abs(result);
 }
-std::map<uint16_t, int16_t> getCounterIntervals(std::vector<int16_t> const& sequenceIntervalLengths, uint16_t freedomDegree)
+
+std::map<uint16_t, int16_t> GetCounterIntervals(std::vector<int16_t> const& sequenceIntervalLengths, uint16_t freedomDegree)
 {
 	std::map<uint16_t, int16_t> result;
 	for (uint16_t i = 0; i != freedomDegree; i++) result[i] = 0;
@@ -32,7 +33,8 @@ std::map<uint16_t, int16_t> getCounterIntervals(std::vector<int16_t> const& sequ
 	}
 	return result;
 }
-std::vector<int16_t> getSequenceIntervalLengths(std::string const& bitSequence)
+
+std::vector<int16_t> GetSequenceIntervalLengths(std::string const& bitSequence)
 {
 	std::vector<int16_t> result;
 	int16_t counter = 1;
@@ -50,11 +52,12 @@ std::vector<int16_t> getSequenceIntervalLengths(std::string const& bitSequence)
 	}
 	return result;
 }
-void StartCheckIntervals(std::string bitSequence)
+
+void StartCheckIntervals(std::string const& bitSequence)
 {
 	Interval interval = { 0, 1 };
 	uint16_t freedomDegree = 10;
-	std::vector<int16_t> sequenceIntervalLengths = getSequenceIntervalLengths(bitSequence);
-	std::map<uint16_t, int16_t> counterIntervals = getCounterIntervals(sequenceIntervalLengths, freedomDegree);
+	std::vector<int16_t> sequenceIntervalLengths = GetSequenceIntervalLengths(bitSequence);
+	std::map<uint16_t, int16_t> counterIntervals = GetCounterIntervals(sequenceIntervalLengths, freedomDegree);
 	std::cout << "CheckIntervals(степени свободы: " << freedomDegree << "): " << ChiSquareIntervals(counterIntervals, interval, freedomDegree) << std::endl;
 }

@@ -1,6 +1,6 @@
 #include "TestCheckPermutations.h"
 
-std::vector<std::string> getSubsequencesPermutations(std::string bitSequence, uint16_t t)
+std::vector<std::string> GetSubsequencesPermutations(std::string const& bitSequence, uint16_t t)
 {
 	std::vector<std::string> result;
 	for (size_t i = 0; i != bitSequence.size(); i += t)
@@ -11,7 +11,8 @@ std::vector<std::string> getSubsequencesPermutations(std::string bitSequence, ui
 	}
 	return result;
 }
-std::map<std::string, uint16_t> getVMapPermutations(std::vector<std::string> subSequences)
+
+std::map<std::string, uint16_t> GetVMapPermutations(std::vector<std::string> const& subSequences)
 {
 	std::map<std::string, uint16_t> result;
 	if (subSequences.size() < 2)
@@ -29,11 +30,13 @@ std::map<std::string, uint16_t> getVMapPermutations(std::vector<std::string> sub
 	}
 	return result;
 }
+
 double Fact(double n)
 {
 	return (n > 1) ? n * Fact(n - 1) : n;
 }
-double ChiSquarePermutations(std::map<std::string, uint16_t> vMap, std::vector<std::string> subSequences, uint16_t t)
+
+double ChiSquarePermutations(std::map<std::string, uint16_t>& vMap, std::vector<std::string> const& subSequences, uint16_t t)
 {
 	double result = 0;
 	double length = (double)subSequences.size();
@@ -47,10 +50,11 @@ double ChiSquarePermutations(std::map<std::string, uint16_t> vMap, std::vector<s
 	}
 	return result / first;
 }
-void StartCheckPermutations(std::string bitSequence)
+
+void StartCheckPermutations(std::string const& bitSequence)
 {
 	uint16_t t = 3;
-	std::vector<std::string> subSequences = getSubsequencesPermutations(bitSequence, t);
-	std::map<std::string, uint16_t> vMap = getVMapPermutations(subSequences);
+	std::vector<std::string> subSequences = GetSubsequencesPermutations(bitSequence, t);
+	std::map<std::string, uint16_t> vMap = GetVMapPermutations(subSequences);
 	std::cout << "CheckPermutations(степени свободы: " << Fact(t) - 1 << "): " << ChiSquarePermutations(vMap, subSequences, t) << std::endl;
 }

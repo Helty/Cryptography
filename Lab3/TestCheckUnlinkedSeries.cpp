@@ -1,6 +1,6 @@
 #include "TestCheckUnlinkedSeries.h"
 
-void StartCheckUnlinkedSeries(std::string bitSequence)
+void StartCheckUnlinkedSeries(std::string const& bitSequence)
 {
 	uint16_t m = 3;
 	std::map<std::string, uint16_t> seriesCounter = GetSeriesCounter(bitSequence, m);
@@ -8,7 +8,7 @@ void StartCheckUnlinkedSeries(std::string bitSequence)
 	std::cout << "CheckUnlinkedSeries(ÒÚÂÔÂÌ¸ Ò‚Ó·Ó‰˚ " << pow(2,m) - 1 << "): " << ChiSquareUnlinkedSeries(seriesCounter, bitSequence, m) << std::endl;
 }
 
-std::map<std::string, uint16_t> GetSeriesCounter(std::string bitSequence, uint16_t m)
+std::map<std::string, uint16_t> GetSeriesCounter(std::string const& bitSequence, uint16_t m)
 {
 	std::map<std::string, uint16_t> result = SetAll—ombinationsOfSerial(m);
 	for (size_t i = 0; i != bitSequence.size(); i += m)
@@ -19,6 +19,7 @@ std::map<std::string, uint16_t> GetSeriesCounter(std::string bitSequence, uint16
 	}
 	return result;
 }
+
 std::map<std::string, uint16_t> SetAll—ombinationsOfSerial(uint16_t m)
 {
 	std::map<std::string, uint16_t> result;
@@ -33,20 +34,22 @@ std::map<std::string, uint16_t> SetAll—ombinationsOfSerial(uint16_t m)
 	}
 	return result;
 }
-double ChiSquareUnlinkedSeries(std::map<std::string, uint16_t> seriesCounter, std::string bitSequence, uint16_t m)
+
+double ChiSquareUnlinkedSeries(std::map<std::string, uint16_t> const& seriesCounter, std::string const& bitSequence, uint16_t m)
 {
 	std::vector<uint16_t> valueFromMap;
-	for (std::map<std::string, uint16_t>::iterator it = seriesCounter.begin(); it != seriesCounter.end(); ++it)
-	{
-		valueFromMap.push_back(it->second);
-	}
+
+	for (auto const& pair : seriesCounter) valueFromMap.push_back(pair.second);
+
 	double divider = (bitSequence.size() / m) * (1 / pow(2, m));
 	double b = 1 / divider;
 	double sum = 0;
+
 	for (size_t i = 0; i != valueFromMap.size(); i++)
 	{
 		sum += pow(valueFromMap[i] - divider, 2);
 	}
-	return  b * sum;
+
+	return b * sum;
 }
 

@@ -3,5 +3,4 @@
 #include <string>
 #include <vector>
 
-
-void StartCheackLinearComplexityProfile(std::string key);
+void StartCheackLinearComplexityProfile(std::string const& bitSequence);

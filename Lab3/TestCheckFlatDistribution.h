@@ -9,5 +9,6 @@ struct Point
 	uint16_t y;
 };
 
-std::vector<Point> getPoints(std::string NumSequence);
+std::vector<Point> GetPointsFlatDistribution(std::string const& NumSequence);
+
 void StartCheckFlatDistribution(std::string const& NumSequence);
