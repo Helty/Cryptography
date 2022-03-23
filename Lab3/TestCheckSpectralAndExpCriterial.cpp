@@ -2,13 +2,23 @@
 
 void PrintCheckExpCriterial(int64_t N, std::vector<std::complex<double>> const& p)
 {
-	std::cout << "CheckExpCriterial: count of points - " << p.size() << std::endl;
-	/*for (int64_t i = 0; i < N; i++)
+	std::cout << "CheckExpCriterial: count of modulus complex number: " << p.size() << std::endl;
+	std::vector<double> modulusOfComlex;
+	for (int64_t i = 0; i < N; i++)
 	{
-		std::cout << "\t" << std::fixed << std::setprecision(3) << p[i];
-		if (i != N - 1) std::cout << std::endl;
+		modulusOfComlex.push_back(sqrt(pow(p[i].real(), 2) + pow(p[i].imag(), 2)));
 	}
-	std::cout << std::endl;*/
+	std::map<double, uint64_t> result;
+
+	for (auto const& item : modulusOfComlex)
+	{
+		result[item]++;
+	}
+	
+	for (auto const& item : result)
+	{
+		std::cout << "\t" << item.first << ": " << item.second << std::endl;
+	}
 }
 
 void PrintCheckSpectralCriterial(int64_t N, std::vector<std::complex<double>> const& p)

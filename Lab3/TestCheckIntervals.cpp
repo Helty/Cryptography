@@ -60,5 +60,5 @@ void StartCheckIntervals(std::string const& bitSequence)
 	uint16_t freedomDegree = 10;
 	std::vector<int16_t> sequenceIntervalLengths = GetSequenceIntervalLengths(bitSequence);
 	std::map<uint16_t, int16_t> counterIntervals = GetCounterIntervals(sequenceIntervalLengths, freedomDegree);
-	std::cout << "CheckIntervals(степени свободы: " << alglib::chisquarecdistribution(freedomDegree, ChiSquareIntervals(counterIntervals, interval, freedomDegree)) << std::endl;
+	std::cout << "CheckIntervals: " << alglib::chisquarecdistribution(freedomDegree, ChiSquareIntervals(counterIntervals, interval, freedomDegree)) << std::endl;
 }

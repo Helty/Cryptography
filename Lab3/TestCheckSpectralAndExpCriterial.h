@@ -4,6 +4,7 @@
 #include <iostream>
 #include <complex>
 #include <vector>
+#include <map>
 #include <iomanip>
 
 void PrintCheckExpCriterial(int64_t N, std::vector<std::complex<double>> const& p);

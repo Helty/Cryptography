@@ -43,10 +43,10 @@ std::vector<Area> MonotonicityCheck(std::string const& bitSequense)
 
 void PrintResultMonotone(std::vector<Area> const& res)
 {
-    std::cout << "CheackMonotone: cout of monotone - " << res.size() << std::endl;
+    std::cout << "CheackMonotone: count of monotone - " << res.size() << std::endl;
 
-
-    /*for (auto item : res)
+    /*
+    for (auto item : res)
     {
         std::cout << "\t" << item.upOrDown << ":" << item.areaLen << "; " << std::endl;
     }*/
