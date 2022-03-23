@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <string>
 #include <cstdlib>
 #include <windows.h>
 
@@ -7,7 +8,6 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 
-using namespace std;
 using namespace boost::multiprecision;
 
 namespace
@@ -30,8 +30,8 @@ namespace
     {
         uint256_t x;
         uint256_t y;
-        int message = 0;
-        uint256_t hash;
+        std::string message;
+        uint256_t hashedMessage;
     };
 
     struct GeneralSettings
@@ -50,7 +50,7 @@ namespace
     };
 
     boost::random::mt19937 gen { static_cast<uint32_t>(std::time(0)) };
-    boost::random::uniform_int_distribution<uint256_t> Gen256{ 5000000, 10000000 };
+    boost::random::uniform_int_distribution<uint256_t> Gen256{ 50000, 100000 };
 }
 
 bool IsPrime(uint256_t number)
@@ -78,9 +78,18 @@ uint1024_t modexp(uint256_t number, uint256_t powerOfnumber, uint1024_t modulus)
     else
         return (number * z * z) % modulus;
 }
-uint256_t HashFunc(int message)
+
+inline uint256_t HashFunc(std::string const& str)
 {
-    return message + 3;
+    uint256_t hash =  0x811c9dc;
+
+    for (size_t i = 0; i < str.size(); ++i) 
+    {
+        uint8_t value = str[i];
+        hash ^= value;
+    }
+
+    return hash;
 }
 
 uint256_t generate_r(uint256_t a, uint256_t k, uint1024_t p, uint256_t q)
@@ -89,11 +98,7 @@ uint256_t generate_r(uint256_t a, uint256_t k, uint1024_t p, uint256_t q)
     while (r == 0) r = static_cast<uint256_t>(modexp(a, k, p) % q);
     return r;
 }
-uint256_t generate_k(uint256_t q)
-{
-    return Gen256(gen) % q;
-}
-uint256_t generate_x(uint256_t q)
+uint256_t generate_kx(uint256_t q)
 {
     return Gen256(gen) % q;
 }
@@ -173,7 +178,7 @@ UserSettings XYAGenerate(GeneralSettings const& genSettings)
 {
     UserSettings result;
 
-    result.x = generate_x(genSettings.q);
+    result.x = generate_kx(genSettings.q);
     result.y = static_cast<uint256_t>(modexp(genSettings.a, result.x, genSettings.p));
 
     return result;
@@ -184,7 +189,7 @@ SignatureAlgorithm SignatureAlgorithmFunc(GeneralSettings const& generalSettings
 
     do
     {
-        outputDSA.k = generate_k(generalSettings.q);
+        outputDSA.k = generate_kx(generalSettings.q);
         outputDSA.r = generate_r(generalSettings.a, outputDSA.k, generalSettings.p, generalSettings.q);
         outputDSA.s = find_s(outputDSA.k, hash, userSettings.x, outputDSA.r, generalSettings.q);
 
@@ -201,12 +206,19 @@ SignatureVerification SignatureVerificationFunc(
 {
     SignatureVerification result;
 
-    result.U1 = find_U(signatureAlgorithm.s, userSettings.hash, generalSettings.q);
-    result.U2 = find_U(signatureAlgorithm.r, userSettings.hash, generalSettings.q, true);
+    result.U1 = find_U(signatureAlgorithm.s, userSettings.hashedMessage, generalSettings.q);
+    result.U2 = find_U(signatureAlgorithm.r, userSettings.hashedMessage, generalSettings.q, true);
     result.V = find_V(result.U1, result.U2, generalSettings.a, userSettings.y, generalSettings.p, generalSettings.q);
-    cout << "V äîëæíî áûòü ðàâíî r : V = " << result.V << ", r = " << signatureAlgorithm.r << endl;
 
     return result;
+}
+
+std::string GetMessageFromUser()
+{
+    std::string message;
+    std::cout << "Please, enter your message: ";
+    std::getline(std::cin, message);
+    return message;
 }
 
 Data StartGOST94()
@@ -219,16 +231,46 @@ Data StartGOST94()
 
     // II
     GOSTData.userSettings = XYAGenerate(GOSTData.generalSettings);
-    GOSTData.userSettings.message = 10;
-    GOSTData.userSettings.hash = HashFunc(GOSTData.userSettings.message);
+    GOSTData.userSettings.message = GetMessageFromUser();
+    GOSTData.userSettings.hashedMessage = HashFunc(GOSTData.userSettings.message);
 
     // III ÀËÃÎÐÈÒÌ ÏÎÄÏÈÑÈ
-    GOSTData.signatureAlgorithm = SignatureAlgorithmFunc(GOSTData.generalSettings, GOSTData.userSettings, GOSTData.userSettings.hash);
+    GOSTData.signatureAlgorithm = SignatureAlgorithmFunc(GOSTData.generalSettings, GOSTData.userSettings, GOSTData.userSettings.hashedMessage);
 
     //ÀËÃÎÐÈÒÌ ÏÐÎÂÅÐÊÈ
     GOSTData.DSAVerification = SignatureVerificationFunc(GOSTData.generalSettings, GOSTData.userSettings, GOSTData.signatureAlgorithm);
 
     return GOSTData;
+}
+
+void PrintInfo(Data const& data)
+{
+    system("cls");
+    std::cout << "p: " << data.generalSettings.p << std::endl;
+    std::cout << "q: " << data.generalSettings.q << std::endl;
+    std::cout << "a: " << data.generalSettings.a << std::endl << std::endl;
+
+    std::cout << "message: " << data.userSettings.message << std::endl;
+    std::cout << "hash: " << data.userSettings.hashedMessage << std::endl;
+    std::cout << "x: " << data.userSettings.x << std::endl;
+    std::cout << "y: " << data.userSettings.y << std::endl << std::endl;
+
+    std::cout << "k: " << data.signatureAlgorithm.k << std::endl;
+    std::cout << "r: " << data.signatureAlgorithm.r << std::endl;
+    std::cout << "s: " << data.signatureAlgorithm.s << std::endl << std::endl;
+
+    std::cout << "U1: " << data.DSAVerification.U1 << std::endl;
+    std::cout << "U2: " << data.DSAVerification.U2 << std::endl;
+    std::cout << "V: " << data.DSAVerification.V << std::endl << std::endl;
+
+    if (data.DSAVerification.V == data.signatureAlgorithm.r)
+    {
+        std::cout << "Ïîäïèñü âåðíà." << std::endl;
+    }
+    else
+    {
+        std::cout << "Ïîäïèñü íå âåðíà." << std::endl;
+    }
 }
 
 int main() 
@@ -261,14 +303,12 @@ int main()
 
     try
     {
-        for (size_t i = 0; i < 50; i++)
-        {
-            Data GOSTdata = StartGOST94();
-        }
+        Data GOSTdata = StartGOST94();
+        PrintInfo(GOSTdata);
     }
     catch (const std::exception& err)
     {
-        cout << err.what() << endl;
+        std::cout << err.what() << std::endl;
         return 1;
     }
 }
