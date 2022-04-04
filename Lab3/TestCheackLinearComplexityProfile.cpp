@@ -2,6 +2,8 @@
 
 void StartCheackLinearComplexityProfile(std::string const& bitSequence)
 {
+	std::cout << "StartCheackLinearComplexityProfile: " << std::endl;
+
 	int64_t n = bitSequence.size();
 	std::vector<int64_t> s;
 	for (int64_t i = 0; i < n; i++)
@@ -38,8 +40,13 @@ void StartCheackLinearComplexityProfile(std::string const& bitSequence)
 			}
 		}
 		N += 1;
+		std::cout << "\tL= " << L << " : ";
+		for (size_t i = 0; i < N; i++)
+		{
+			std::cout << bitSequence[i] << " ";
+		}
+		std::cout << std::endl;
 	}
-	std::cout << "StartCheackLinearComplexityProfile: " << std::endl;
 
 	std::cout << "\tL= " << L << std::endl;
 }
