@@ -1,24 +1,16 @@
+#define LSHIFT_nBIT(x, L, N) (((x << L) | (x >> (-L & (N - 1)))) & (((uint64_t)1 << N) - 1))
+#define RSHIFT_nBIT(x, R, N) (((x >> R) | (x << (-R & (N - 1)))) & (((uint64_t)1 << N) - 1))
+
 #include <iostream>
 #include <string>
 #include <vector>
 #include <algorithm>
 #include <windows.h>
 
-#include <boost/multiprecision/cpp_int.hpp>
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/random/uniform_int_distribution.hpp>
-
-// 10101100 << 2 = 10110000 | 00000010 = 10110010
-#define LSHIFT_nBIT(x, L, N) (((x << L) | (x >> (-L & (N - 1)))) & (((uint64_t)1 << N) - 1))
-#define RSHIFT_nBIT(x, R, N) (((x >> R) | (x << (-R & (N - 1)))) & (((uint64_t)1 << N) - 1))
-#define BUFF_SIZE 1024
-// 1 | 4 -> 0xC 
-
 namespace
 {
     using Byte8Array = std::vector<uint8_t>;
     using Byte32Array = std::vector<uint32_t>;
-    using namespace boost::multiprecision;
 
     enum class CryptMod
     {
@@ -38,7 +30,13 @@ namespace
     };
 }
 
-static inline void PrintArray(Byte8Array const& array)
+static inline void PrintBytes(Byte8Array const& array)
+{
+    std::cout << "[ ";
+    for (size_t i = 0; i < array.size(); ++i) std::cout << array[i] - 0 << " ";
+    std::cout << "]" << std::endl;
+}
+static inline void PrintMessage(Byte8Array const& array)
 {
     std::cout << "[ ";
     for (size_t i = 0; i < array.size(); ++i) std::cout << array[i] << " ";
@@ -47,13 +45,7 @@ static inline void PrintArray(Byte8Array const& array)
 uint64_t Join32To64(uint32_t const& block32_1, uint32_t const& block32_2)
 {
     uint64_t block64;
-    // block64b = 10101010101010101010101010101010 = 
-    // 0000000000000000000000000000000010101010101010101010101010101010
     block64 = block32_2;
-    // block64b = 
-    // = (0000000000000000000000000000000010101010101010101010101010101010 << 32) | 11111111111111111111111111111111 = 
-    // = 1010101010101010101010101010101000000000000000000000000000000000 | 11111111111111111111111111111111 = 
-    // = 101010101010101010101010101010111111111111111111111111111111111
     block64 = (block64 << 32) | block32_1;
     return block64;
 }
@@ -61,30 +53,13 @@ void Split64To8(uint64_t const& block64, Byte8Array& blocks8)
 {
     for (size_t i = 0; i < 8; ++i)
     {
-        // blocks8b[0] = 
-        // = (uint8_t)0000101010101010101010101010101010101010101010101010101010101111 >> ((7 - 0) * 8)
-        // = (uint8_t)0000101010101010101010101010101010101010101010101010101010101111 >> 56 =
-        // = (uint8_t)0000000000000000000000000000000000000000000000000000000000001010 =
-        // = 00001010
-        blocks8[i] = (uint8_t)(block64 >> ((7 - i) * 8));
+        blocks8.push_back((uint8_t)(block64 >> ((7 - i) * 8)));
     }
 }
 uint32_t Join4To32(Byte8Array const& blocks4)
 {
     uint32_t block32;
-    // block64b = 00000000000000000000000000000000
-    for (uint8_t i = 0; i < 4; ++i) 
-    {
-        // i = 0
-        // (00000000000000000000000000000000 << 8) | 11001100 = 
-        // 00000000000000000000000011001100
-        // i = 1
-        // (00000000000000000000000011001100 << 8) | 11110011 = 
-        // 00000000000000001100110000000000 | 11110011 = 
-        // 00000000000000001100110011110011
-        // ... i < 4 ...
-        block32 = (block32 << 8) | blocks4[i];
-    }
+    for (uint8_t i = 0; i < 4; ++i) block32 = (block32 << 8) | blocks4[i];
     return block32;
 }
 void SubstitutionTableBy4(Byte8Array& blocks4, uint8_t const& sboxRow)
@@ -93,19 +68,9 @@ void SubstitutionTableBy4(Byte8Array& blocks4, uint8_t const& sboxRow)
 
     for (uint8_t i = 0; i < 4; ++i)
     {
-        // 10101100 & 0x0F = 00001100
-        // [example get from table] 1100 -> 1001
         block4_1 = Sbox[sboxRow][blocks4[i] & 0x0F];
-
-        // 10101100 >> 4 = 00001010
-        // [example get from table] 1010 -> 0111
         block4_2 = Sbox[sboxRow][blocks4[i] >> 4];
-
-        // 00001001
         blocks4[i] = block4_2;
-
-        // (00001001 << 4) | 0111 = 
-        // 1001000 | 0111 = 10010111 
         blocks4[i] = (blocks4[i] << 4) | block4_1;
     }
 }
@@ -113,11 +78,7 @@ void Split32To8(uint32_t const& block32, Byte8Array& blocks8)
 {
     for (uint8_t i = 0; i < 4; ++i)
     {
-        // blocks8b[0] = (uint8_t)10111101000101010100101110100010 >> (28 - (0 * 8)) =
-        // = (uint8_t)10101010101010101010101010101010 >> 28 = 
-        // = (uint8_t)00000000000000000000000010111101
-        // = 10111101
-        blocks8[i] = (uint8_t)(block32 >> (24 - (i * 8)));
+        blocks8.push_back((uint8_t)(block32 >> (24 - (i * 8))));
     }
 }
 uint32_t SubstitutionTable(uint32_t const& block32, uint8_t const& sboxRow)
@@ -130,17 +91,9 @@ uint32_t SubstitutionTable(uint32_t const& block32, uint8_t const& sboxRow)
 void RoundOfFeistelCipher(uint32_t& block32_1, uint32_t& block32_2, Byte32Array const& keys32, uint8_t const& round)
 {
     uint32_t resultOfIter, temp;
-
-    // RES = (N1 + Ki) mod 2^32
     resultOfIter = (block32_1 + keys32[round % 8]) % UINT32_MAX;
-
-    // RES = RES -> Sbox
     resultOfIter = SubstitutionTable(resultOfIter, round % 8);
-
-    // RES = RES <<< 11
     resultOfIter = (uint32_t)LSHIFT_nBIT(resultOfIter, 11, 32);
-
-    // N1, N2 = (RES xor N2), N1
     temp = block32_1;
     block32_1 = resultOfIter ^ block32_2;
     block32_2 = temp;
@@ -149,13 +102,10 @@ void FeistelCipher(CryptMod const& mode, uint32_t& block32_1, uint32_t& block32_
 {
     if (mode == CryptMod::ENCRYPT)
     {
-        // K0, K1, K2, K3, K4, K5, K6, K7, K0, K1, K2, K3, K4, K5, K6, K7, K0, K1, K2, K3, K4, K5, K6, K7
         for (uint8_t round = 0; round < 24; ++round)
         {
             RoundOfFeistelCipher(block32_1, block32_2, keys32, round);
         }
-
-        // K7, K6, K5, K4, K3, K2, K1, K0
         for (uint8_t round = 31; round >= 24; --round)
         {
             RoundOfFeistelCipher(block32_1, block32_2, keys32, round);
@@ -163,13 +113,10 @@ void FeistelCipher(CryptMod const& mode, uint32_t& block32_1, uint32_t& block32_
     }
     else if (mode == CryptMod::DECRYPT)
     {
-        // K0, K1, K2, K3, K4, K5, K6, K7
         for (uint8_t round = 0; round < 8; ++round)
         {
             RoundOfFeistelCipher(block32_1, block32_2, keys32, round);
         }
-
-        // K7, K6, K5, K4, K3, K2, K1, K0, K7, K6, K5, K4, K3, K2, K1, K0, K7, K6, K5, K4, K3, K2, K1, K0
         for (uint8_t round = 31; round >= 8; --round)
         {
             RoundOfFeistelCipher(block32_1, block32_2, keys32, round);
@@ -205,23 +152,21 @@ size_t GOST1989(
     Byte8Array& messageCrypt,
     CryptMod const& mode,
     Byte8Array const& key,
-    Byte8Array const& message,
+    Byte8Array& message,
     size_t lengthMessage
 )
 {
     lengthMessage = lengthMessage % 8 == 0 ? lengthMessage : lengthMessage + (8 - (lengthMessage % 8));
+    while (message.size() != lengthMessage) message.push_back(static_cast<uint8_t>(0));
     uint32_t N1, N2;
     Byte32Array keys32;
     Split256To32(key, keys32);
 
     for (size_t i = 0; i < lengthMessage; i += 8)
     {
-        Byte8Array subMessage(&message[i], &message[i + 8]);
-
+        Byte8Array subMessage(message.begin() + i, message.begin() + i + 8);
         Split64To32(Join8To64(subMessage), N1, N2);
-
         FeistelCipher(mode, N1, N2, keys32);
-        
         Split64To8(Join32To64(N1, N2), messageCrypt);
     }
 
@@ -240,10 +185,6 @@ Byte8Array StringToByte8Array(std::string const& str)
 
     return bytes;
 }
-std::string Byte8ArrayToString(Byte8Array const& bytes)
-{
-    return reinterpret_cast<const char*>(bytes.data());
-}
 std::string GetMessageFromUser()
 {
     std::string message;
@@ -261,20 +202,23 @@ void StartGOST1989()
     Byte8Array decryptedMessage;
 
     std::cout << "Open message: " << std::endl;
-    PrintArray(openMessage);
-    std::cout << Byte8ArrayToString(openMessage) << std::endl;
+    PrintBytes(openMessage);
+    PrintMessage(openMessage);
+    std::cout << std::endl;
 
     size_t sizeOfEncryptedMessage = GOST1989(encryptedMessage, CryptMod::ENCRYPT, key256b, openMessage, sizeOfOpenMessage);
     
     std::cout << "Encrypted message: " << std::endl;
-    PrintArray(encryptedMessage);
-    std::cout << Byte8ArrayToString(encryptedMessage) << std::endl;
+    PrintBytes(encryptedMessage);
+    PrintMessage(encryptedMessage);
+    std::cout << std::endl;
 
     size_t sizeOfDecryptedMessage = GOST1989(decryptedMessage, CryptMod::DECRYPT, key256b, encryptedMessage, sizeOfEncryptedMessage);
 
     std::cout << "Decrypted message: " << std::endl;
-    PrintArray(decryptedMessage);
-    std::cout << Byte8ArrayToString(decryptedMessage) << std::endl;
+    PrintBytes(decryptedMessage);
+    PrintMessage(decryptedMessage);
+    std::cout << std::endl;
 }
 
 int main(int argc, char* argv[])
