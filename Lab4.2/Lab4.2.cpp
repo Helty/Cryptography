@@ -12,10 +12,16 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 
-using namespace boost::multiprecision;
-
 namespace
 {
+    using namespace boost::multiprecision;
+
+    std::random_device rd;
+    boost::random::mt19937 randomNumber{ rd() };
+    boost::random::uniform_int_distribution<> GeneratorInDistribution{ 10000, 120000 };
+
+    std::map<int1024_t, std::vector<std::pair<int1024_t, int1024_t>>> BadABForP;
+
     struct PointEllipticCurve
     {
         int1024_t x;
@@ -69,39 +75,17 @@ namespace
     {
         return (c1.x == c2.x and c1.y == c2.y);
     }
-
-    std::random_device rd;
-    boost::random::mt19937 randomNumber{ rd() };
-    boost::random::uniform_int_distribution<> GeneratorInDistribution{ 10000, 120000 };
-
-    std::map<int1024_t, std::vector<std::pair<int1024_t, int1024_t>>> BadABForP;
 }
 
-inline int1024_t HashFunc(std::string const& str);
-int1024_t inverse_elem(int1024_t const& a, int1024_t const& m);
-int1024_t SquareRoot(int1024_t const& e, int1024_t const& p);
-bool IsPointAtInfinity(PointEllipticCurve const& result);
-std::vector<bool> DecToBin(int1024_t number);
-PointEllipticCurve AddingPoints(PointEllipticCurve const& point1, PointEllipticCurve const& point2, GeneralSettings const& genSettings);
-PointEllipticCurve DoublingPoint(PointEllipticCurve const& point, GeneralSettings const& genSettings);
-PointEllipticCurve Point—omposition(int1024_t const& m, PointEllipticCurve const& point, GeneralSettings const& genSettings);
-PointEllipticCurve GetGeneratorPoint(GeneralSettings const& genSettings);
-SignatureAlgorithm SignatureAlgorithmFunc(GeneralSettings const& generalSettings, UserSettings const& userSettings);
-bool SignatureVerificationFunc(Data& data);
-int1024_t GetCountPointOfEliptic—urveFromFile(std::wstring const& filePath);
-int1024_t GreatestPrimeDivisorOfNumber(int1024_t n);
-int1024_t CountPointsOnElliptic—urve(GeneralSettings& generalSettings);
-bool ResistantToMOVAttacks(GeneralSettings const& generalSettings);
-UserSettings GetUserSettings(GeneralSettings const& generalSettings);
-void PrintInfo(Data const& data);
-std::string GetMessageFromUser();
-int1024_t modexp(int1024_t const& number, int1024_t const& powerOfnumber, int1024_t const& modulus);
-int1024_t CalcD(int1024_t const& a, int1024_t const& b, int1024_t const& p);
-void GenerateAB(GeneralSettings& result);
-bool IsPrime(int1024_t const& number);
-GeneralSettings GetGeneralSettings();
-Data StartGOST2001();
-
+int1024_t ModExp(int1024_t const& number, int1024_t const& powerOfnumber, int1024_t const& modulus)
+{
+    if (powerOfnumber == 0) return 1;
+    int1024_t z = ModExp(number, powerOfnumber / 2, modulus);
+    if (powerOfnumber % 2 == 0)
+        return (z * z) % modulus;
+    else
+        return (number * z * z) % modulus;
+}
 inline int1024_t HashFunc(std::string const& str)
 {
     int1024_t hash = 0x811c9dc;
@@ -114,7 +98,7 @@ inline int1024_t HashFunc(std::string const& str)
 
     return hash;
 }
-int1024_t inverse_elem(int1024_t const& a, int1024_t const& m)
+int1024_t InverseElem(int1024_t const& a, int1024_t const& m)
 {
     for (int1024_t b = 1; ; b++)
     {
@@ -159,7 +143,7 @@ PointEllipticCurve AddingPoints(PointEllipticCurve const& point1, PointEllipticC
 
     while (devisor < 0) devisor = genSettings.p - abs(devisor);
 
-    int1024_t k = (point2.y - point1.y) * inverse_elem(devisor, genSettings.p);
+    int1024_t k = (point2.y - point1.y) * InverseElem(devisor, genSettings.p);
 
     if (devisor_less_than_zero_flag)
     {
@@ -180,7 +164,7 @@ PointEllipticCurve DoublingPoint(PointEllipticCurve const& point, GeneralSetting
     if (IsPointAtInfinity(point)) return point;
     PointEllipticCurve result;
 
-    int1024_t k = ((3 * modexp(point.x, 2, genSettings.p)) + genSettings.a) * inverse_elem(2 * point.y, genSettings.p);
+    int1024_t k = ((3 * ModExp(point.x, 2, genSettings.p)) + genSettings.a) * InverseElem(2 * point.y, genSettings.p);
 
     result.x = (k * k - (2 * point.x)) % genSettings.p;
     while (result.x < 0) result.x = genSettings.p - abs(result.x);
@@ -219,7 +203,7 @@ PointEllipticCurve GetGeneratorPoint(GeneralSettings const& genSettings)
         PointEllipticCurve result;
 
         int1024_t x = GeneratorInDistribution(randomNumber) % genSettings.p;
-        int1024_t e = (modexp(x, 3, genSettings.p) + genSettings.a * x + genSettings.b) % genSettings.p;
+        int1024_t e = (ModExp(x, 3, genSettings.p) + genSettings.a * x + genSettings.b) % genSettings.p;
         int1024_t y = SquareRoot(e, genSettings.p);
         if (y == -1) continue;
         else
@@ -248,7 +232,7 @@ SignatureAlgorithm SignatureAlgorithmFunc(GeneralSettings const& generalSettings
     SignatureAlgorithm result;
 
 GenerateAgain:
-    result.k = GeneratorInDistribution(randomNumber) % generalSettings.p;
+    result.k = GeneratorInDistribution(randomNumber) % generalSettings.q;
     result.P = Point—omposition(result.k, generalSettings.generator, generalSettings);
     result.r = result.P.x % generalSettings.q;
     
@@ -267,7 +251,7 @@ bool SignatureVerificationFunc(Data& data)
     {
         return false;
     }
-    int1024_t inversH = inverse_elem(data.userSettings.hashOfMessage, data.generalSettings.q);
+    int1024_t inversH = InverseElem(data.userSettings.hashOfMessage, data.generalSettings.q);
     data.DSAVerification.U1 = (data.signatureAlgorithm.s * inversH) % data.generalSettings.q;
     data.DSAVerification.U2 = -data.signatureAlgorithm.r * inversH;
 
@@ -398,7 +382,7 @@ bool ResistantToMOVAttacks(GeneralSettings const& generalSettings)
 {
     for (size_t k = 1; k < 32; k++)
     {
-        if (modexp(generalSettings.p, k, generalSettings.n) == 1) return false;
+        if (ModExp(generalSettings.p, k, generalSettings.n) == 1) return false;
     }
     return true;
 }
@@ -439,18 +423,9 @@ void PrintInfo(Data const& data)
 
     std::cout << "x: " << data.DSAVerification.P.x % data.generalSettings.q << "r: " << data.signatureAlgorithm.r << std::endl;
 }
-int1024_t modexp(int1024_t const& number, int1024_t const& powerOfnumber, int1024_t const& modulus)
-{
-    if (powerOfnumber == 0) return 1;
-    int1024_t z = modexp(number, powerOfnumber / 2, modulus);
-    if (powerOfnumber % 2 == 0)
-        return (z * z) % modulus;
-    else
-        return (number * z * z) % modulus;
-}
 int1024_t CalcD(int1024_t const& a, int1024_t const& b, int1024_t const& p)
 {
-    return (4 * modexp(a, 3, p) + 27 * modexp(b, 2, p)) % p;
+    return (4 * ModExp(a, 3, p) + 27 * ModExp(b, 2, p)) % p;
 }
 void GenerateAB(GeneralSettings& result)
 {
