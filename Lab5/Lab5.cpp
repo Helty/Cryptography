@@ -1,10 +1,10 @@
 #include <windows.h>
 #include "GOST1989.h"
 
-static inline void PrintBytes(std::string const& str)
+static inline void PrintBytes(std::string const& str)   
 {
     std::cout << "[ ";
-    for (size_t i = 0; i < str.size(); ++i) std::cout << (uint8_t)str[i] << " ";
+    for (size_t i = 0; i < str.size(); ++i) std::cout << (uint8_t)str[i] - 0 << " ";
     std::cout << "]" << std::endl;
 }
 
@@ -18,14 +18,16 @@ std::string GetMessageFromUser()
 
 void StartGOST1989()
 {
+    GOST1989 example{};
+
     std::string message = GetMessageFromUser();
     std::string key256 = "bkvzhzkyzelebdbyvujamjewljkwomtz";
 
-    std::string messageEncrypt = GOST1989::EncryptMessage(message, key256);
+    std::string messageEncrypt = example.EncryptMessage(message, key256);
 
-    std::string messageDecrypt = GOST1989::DecryptMessage(messageEncrypt, key256);
+    std::string messageDecrypt = example.DecryptMessage(messageEncrypt, key256);
 
-    std::cout << "Open message: " << std::endl;
+    std::cout << std::endl << "Open message: " << std::endl;
     PrintBytes(message);
     std::cout << message << std::endl << std::endl;
 

@@ -1,5 +1,3 @@
-#define LSHIFT_nBIT(x, L, N) (((x << L) | (x >> (-L & (N - 1)))) & (((uint64_t)1 << N) - 1))
-#define RSHIFT_nBIT(x, R, N) (((x >> R) | (x << (-R & (N - 1)))) & (((uint64_t)1 << N) - 1))
 #include "GOST1989.h"
 
 namespace
@@ -14,6 +12,16 @@ namespace
         {0x1, 0xD, 0x2, 0x9, 0x7, 0xA, 0x6, 0x0, 0x8, 0xC, 0x4, 0x5, 0xF, 0x3, 0xB, 0xE},
         {0xB, 0xA, 0xF, 0x5, 0x0, 0xC, 0xE, 0x8, 0x6, 0x2, 0x3, 0x9, 0x1, 0x7, 0xD, 0x4},
     };
+}
+
+uint32_t GOST1989::LeftShift(uint32_t const& x)
+{
+    return (((x << 11) | (x >> (-11 & (32 - 1)))) & (((uint64_t)1 << 32) - 1));
+}
+
+uint32_t GOST1989::RightShift(uint32_t const& x)
+{
+    return (((x >> 11) | (x << (-11 & (32 - 1)))) & (((uint64_t)1 << 32) - 1));
 }
 
 uint64_t GOST1989::Join32To64(uint32_t const& block32_1, uint32_t const& block32_2)
@@ -101,7 +109,7 @@ void GOST1989::RoundOfFeistelCipher(uint32_t& block32_1, uint32_t& block32_2, st
     uint32_t resultOfIter, temp;
     resultOfIter = (block32_1 + keys32[round % 8]) % UINT32_MAX;
     resultOfIter = SubstitutionTable(resultOfIter, round % 8);
-    resultOfIter = (uint32_t)LSHIFT_nBIT(resultOfIter, 11, 32);
+    resultOfIter = LeftShift(resultOfIter);
     temp = block32_1;
     block32_1 = resultOfIter ^ block32_2;
     block32_2 = temp;
@@ -164,6 +172,9 @@ std::string GOST1989::CryptMessage(
     uint32_t N1, N2;
 
     size_t lengthMessage = message.size() % 8 == 0 ? message.size() : message.size() + (8 - (message.size() % 8));
+
+    if (mode == CryptMode::ENCRYPT) m_numberOfAddedLetters = lengthMessage - message.size();
+
     while (message.size() != lengthMessage) message.push_back(static_cast<uint8_t>(0));
 
     Split256To32(key256, keys32);
@@ -174,6 +185,15 @@ std::string GOST1989::CryptMessage(
         Split64To32(Join8To64(subMessage), N1, N2);
         FeistelCipher(mode, N1, N2, keys32);
         Split64To8(Join32To64(N1, N2), messageCrypt);
+    }
+
+    if (mode == CryptMode::DECRYPT)
+    {
+        while (m_numberOfAddedLetters != 0)
+        {
+            messageCrypt.pop_back();
+            m_numberOfAddedLetters--;
+        }
     }
 
     return std::string(messageCrypt.begin(), messageCrypt.end());
