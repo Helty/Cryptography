@@ -16,6 +16,7 @@ namespace
 
 uint32_t GOST1989::LeftShift(uint32_t const& x)
 {
+    // 10101100 << 2 = 10110000 | 00000010 = 10110010
     return (((x << 11) | (x >> (-11 & (32 - 1)))) & (((uint64_t)1 << 32) - 1));
 }
 
@@ -27,7 +28,13 @@ uint32_t GOST1989::RightShift(uint32_t const& x)
 uint64_t GOST1989::Join32To64(uint32_t const& block32_1, uint32_t const& block32_2)
 {
     uint64_t block64;
+    // block64b = 10101010101010101010101010101010 = 
+    // 0000000000000000000000000000000010101010101010101010101010101010
     block64 = block32_2;
+    // block64b = 
+    // = (0000000000000000000000000000000010101010101010101010101010101010 << 32) | 11111111111111111111111111111111 = 
+    // = 1010101010101010101010101010101000000000000000000000000000000000 | 11111111111111111111111111111111 = 
+    // = 101010101010101010101010101010111111111111111111111111111111111
     block64 = (block64 << 32) | block32_1;
     return block64;
 }
@@ -36,6 +43,11 @@ void GOST1989::Split64To8(uint64_t const& block64, std::vector<uint8_t>& blocks8
 {
     for (size_t i = 0; i < 8; ++i)
     {
+        // blocks8b[0] = 
+        // = (uint8_t)0000101010101010101010101010101010101010101010101010101010101111 >> ((7 - 0) * 8)
+        // = (uint8_t)0000101010101010101010101010101010101010101010101010101010101111 >> 56 =
+        // = (uint8_t)0000000000000000000000000000000000000000000000000000000000001010 =
+        // = 00001010
         blocks8.push_back((uint8_t)(block64 >> ((7 - i) * 8)));
     }
 }
@@ -43,7 +55,19 @@ void GOST1989::Split64To8(uint64_t const& block64, std::vector<uint8_t>& blocks8
 uint32_t GOST1989::Join4To32(std::vector<uint8_t> const& blocks4)
 {
     uint32_t block32 = 0;
-    for (uint8_t i = 0; i < 4; ++i) block32 = (block32 << 8) | blocks4[i];
+    // block64b = 00000000000000000000000000000000
+    for (uint8_t i = 0; i < 4; ++i)
+    {
+        // i = 0
+        // (00000000000000000000000000000000 << 8) | 11001100 = 
+        // 00000000000000000000000011001100
+        // i = 1
+        // (00000000000000000000000011001100 << 8) | 11110011 = 
+        // 00000000000000001100110000000000 | 11110011 = 
+        // 00000000000000001100110011110011
+        // ... i < 4 ...
+        block32 = (block32 << 8) | blocks4[i];
+    }
     return block32;
 }
 
@@ -53,9 +77,19 @@ void GOST1989::SubstitutionTableBy4(std::vector<uint8_t>& blocks4, uint8_t const
 
     for (uint8_t i = 0; i < 4; ++i)
     {
+        // 10101100 & 0x0F = 00001100
+        // [example get from table] 1100 -> 1001
         block4_1 = m_sbox[sboxRow][blocks4[i] & 0x0F];
+
+        // 10101100 >> 4 = 00001010
+        // [example get from table] 1010 -> 0111
         block4_2 = m_sbox[sboxRow][blocks4[i] >> 4];
+
+        // 00001001
         blocks4[i] = block4_2;
+
+        // (00001001 << 4) | 0111 = 
+        // 1001000 | 0111 = 10010111 
         blocks4[i] = (blocks4[i] << 4) | block4_1;
     }
 }
@@ -64,6 +98,10 @@ void GOST1989::Split32To8(uint32_t const& block32, std::vector<uint8_t>& blocks8
 {
     for (uint8_t i = 0; i < 4; ++i)
     {
+        // blocks8b[0] = (uint8_t)10111101000101010100101110100010 >> (28 - (0 * 8)) =
+        // = (uint8_t)10101010101010101010101010101010 >> 28 = 
+        // = (uint8_t)00000000000000000000000010111101
+        // = 10111101
         blocks8.push_back((uint8_t)(block32 >> (24 - (i * 8))));
     }
 }
@@ -79,7 +117,20 @@ uint32_t GOST1989::SubstitutionTable(uint32_t const& block32, uint8_t const& sbo
 uint64_t GOST1989::Join8To64(std::vector<uint8_t> const& blocks8)
 {
     uint64_t block64 = 0;
-    for (size_t i = 0; i < 8; ++i) block64 = (block64 << 8) | blocks8[i];
+    // block64b = 0000000000000000000000000000000000000000000000000000000000000000
+    for (size_t i = 0; i < 8; ++i)
+    {
+        // i = 0
+        // (0000000000000000000000000000000000000000000000000000000000000000 << 8) | 11001100 = 
+        // 0000000000000000000000000000000000000000000000000000000011001100
+        // i = 1
+        // (0000000000000000000000000000000000000000000000000000000011001100 << 8) | 11110011 = 
+        // 0000000000000000000000000000000000000000000000001100110000000000 | 11110011 = 
+        // 0000000000000000000000000000000000000000000000001100110011110011
+        // ... i < 8 ...
+        block64 = (block64 << 8) | blocks8[i];
+    }
+
     return block64;
 }
 
@@ -93,9 +144,16 @@ void GOST1989::Split256To32(std::vector<uint8_t> const& key256, std::vector<uint
 {
     size_t countBlock = 0;
 
+    // p32[0] = 00000000000000000000000000000000
     for (size_t i = 0; i < 8; i++)
     {
         uint32_t block32 = 0;
+
+        // 00000000000000000000000000000000 << 8 | 10010010 = 00000000000000000000000010010010
+        // 00000000000000000000000010010010 << 8 | 00011110 = 00000000000000001001001000011110
+        // 00000000000000001001001000011110 << 8 | 11100011 = 00000000100100100001111011100011
+        // 00000000100100100001111011100011 << 8 | 01010101 = 10010010000111101110001101010101
+
         for (uint8_t j = 0; j < 4; ++j)
         {
             block32 = (block32 << 8) | key256[countBlock++];
@@ -107,22 +165,33 @@ void GOST1989::Split256To32(std::vector<uint8_t> const& key256, std::vector<uint
 void GOST1989::RoundOfFeistelCipher(uint32_t& block32_1, uint32_t& block32_2, std::vector<uint32_t> const& keys32, uint8_t const& round)
 {
     uint32_t resultOfIter, temp;
+
+    // RES = (N1 + Ki) mod 2^32
     resultOfIter = (block32_1 + keys32[round % 8]) % UINT32_MAX;
+
+    // RES = RES -> Sbox
     resultOfIter = SubstitutionTable(resultOfIter, round % 8);
+
+    // RES = RES << 11
     resultOfIter = LeftShift(resultOfIter);
+
+    // N1, N2 = (RES xor N2), N1
     temp = block32_1;
     block32_1 = resultOfIter ^ block32_2;
     block32_2 = temp;
 }
 
+//keys32 [K0, K1, K2, K3, K4, K5, K6, K7]
 void GOST1989::FeistelCipher(CryptMode const& mode, uint32_t& block32_1, uint32_t& block32_2, std::vector<uint32_t> const& keys32)
 {
     if (mode == CryptMode::ENCRYPT)
     {
+        // K0, K1, K2, K3, K4, K5, K6, K7, K0, K1, K2, K3, K4, K5, K6, K7, K0, K1, K2, K3, K4, K5, K6, K7
         for (uint8_t round = 0; round < 24; ++round)
         {
             RoundOfFeistelCipher(block32_1, block32_2, keys32, round);
         }
+        // K7, K6, K5, K4, K3, K2, K1, K0
         for (uint8_t round = 31; round >= 24; --round)
         {
             RoundOfFeistelCipher(block32_1, block32_2, keys32, round);
@@ -130,10 +199,13 @@ void GOST1989::FeistelCipher(CryptMode const& mode, uint32_t& block32_1, uint32_
     }
     else if (mode == CryptMode::DECRYPT)
     {
+        // K0, K1, K2, K3, K4, K5, K6, K7
         for (uint8_t round = 0; round < 8; ++round)
         {
             RoundOfFeistelCipher(block32_1, block32_2, keys32, round);
         }
+
+        // K7, K6, K5, K4, K3, K2, K1, K0, K7, K6, K5, K4, K3, K2, K1, K0, K7, K6, K5, K4, K3, K2, K1, K0
         for (uint8_t round = 31; round >= 8; --round)
         {
             RoundOfFeistelCipher(block32_1, block32_2, keys32, round);
