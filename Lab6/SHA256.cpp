@@ -41,7 +41,7 @@ std::string SHA256::Hashed(std::string const& message)
 {
 	std::string hash;
 	std::vector<bool> m = ProcessingPreliminary(message);
-	std::vector<uint32_t> initialH = hVector;
+	std::vector<uint32_t> initialH(hVector.begin(), hVector.end()); //h0 h1 h2 h3 h4 h5 h6 h7
 
 	for (size_t i = 0; i < m.size(); i += 512)
 	{
@@ -62,50 +62,49 @@ std::string SHA256::Hashed(std::string const& message)
 
 void SHA256::Processing512(uint512_t const& value, std::vector<uint32_t>& initialH)
 {
-	std::vector<uint32_t> blocks32;
-
 	//step 1
+	std::vector<uint32_t> blocks32;
 	{
 		Split512To32(value, blocks32);
 	}
 
 	//step 2
 	{
-		for (size_t i = 16; i < 64; i++)
+		for (size_t i = 16; i < 64; ++i)
 		{
-			uint32_t s0 = RightRotate(blocks32[i - 15], 7) ^ RightRotate(blocks32[i - 15], 18) ^ blocks32[i - 15] >> 3;
-			uint32_t s1 = RightRotate(blocks32[i - 2], 17) ^ RightRotate(blocks32[i - 2], 19) ^ blocks32[i - 2] >> 10;
-			blocks32.push_back((blocks32[i - 16] + s0 + blocks32[i - 7] + s1) % UINT32_MAX);
+			uint32_t s0 = RightRotate(blocks32[i - 15], 7) ^ RightRotate(blocks32[i - 15], 18) ^ (blocks32[i - 15] >> 3);
+			uint32_t s1 = RightRotate(blocks32[i - 2], 17) ^ RightRotate(blocks32[i - 2], 19) ^ (blocks32[i - 2] >> 10);
+			blocks32.push_back(blocks32[i - 16] + s0 + blocks32[i - 7] + s1);
 		}
 	}
 
-	std::vector<uint32_t> abcdefgh(hVector);
+	std::vector<uint32_t> initH(initialH);
 
 	//step 3
 	{
-		for (size_t i = 0; i < 64; i++)
+		for (size_t i = 0; i < 64; ++i)
 		{
-			uint32_t Σ0 = RightRotate(abcdefgh[0], 2) ^ RightRotate(abcdefgh[0], 13) ^ RightRotate(abcdefgh[0], 22);
-			uint32_t Ma = (abcdefgh[0] & abcdefgh[1]) ^ (abcdefgh[0] & abcdefgh[2]) ^ (abcdefgh[1] & abcdefgh[2]);
-			uint32_t t2 = (Σ0 + Ma) % UINT32_MAX;
-			uint32_t Σ1 = RightRotate(abcdefgh[4], 6) ^ RightRotate(abcdefgh[4], 11) ^ RightRotate(abcdefgh[4], 25);
-			uint32_t Ch = (abcdefgh[4] & abcdefgh[5]) ^ (~abcdefgh[4] & abcdefgh[6]);
-			uint32_t t1 = (abcdefgh[7] + Σ1 + Ch + kVector[i] + blocks32[i]) % UINT32_MAX;
+			uint32_t s0 = RightRotate(initH[0], 2) ^ RightRotate(initH[0], 13) ^ RightRotate(initH[0], 22);
+			uint32_t Ma = (initH[0] & initH[1]) ^ (initH[0] & initH[2]) ^ (initH[1] & initH[2]);
+			uint32_t t2 = s0 + Ma;
+			uint32_t s1 = RightRotate(initH[4], 6) ^ RightRotate(initH[4], 11) ^ RightRotate(initH[4], 25);
+			uint32_t Ch = (initH[4] & initH[5]) ^ ((~initH[4]) & initH[6]);
+			uint32_t t1 = initH[7] + s1 + Ch + kVector[i] + blocks32[i];
 
-			abcdefgh[7] = abcdefgh[6];
-			abcdefgh[6] = abcdefgh[5];
-			abcdefgh[5] = abcdefgh[4];
-			abcdefgh[4] = (abcdefgh[3] + t1) % UINT32_MAX;
-			abcdefgh[3] = abcdefgh[2];
-			abcdefgh[2] = abcdefgh[1];
-			abcdefgh[1] = abcdefgh[0];
-			abcdefgh[0] = (t1 + t2) % UINT32_MAX;
+			initH[7] = initH[6];
+			initH[6] = initH[5];
+			initH[5] = initH[4];
+			initH[4] = (initH[3] + t1);
+			initH[3] = initH[2];
+			initH[2] = initH[1];
+			initH[1] = initH[0];
+			initH[0] = (t1 + t2);
 		}
 	}
 
 	//step 4
 	{
-		for (size_t i = 0; i < 8; i++) initialH[i] += abcdefgh[i];
+		for (size_t i = 0; i < 8; i++) initialH[i] += initH[i];
 	}
 }
 
