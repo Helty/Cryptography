@@ -14,28 +14,17 @@ namespace
     };
 }
 
-uint32_t GOST1989::LeftShift(uint32_t const& x)
-{
-    // 10101100 << 2 = 10110000 | 00000010 = 10110010
-    return (((x << 11) | (x >> (-11 & (32 - 1)))) & (((uint64_t)1 << 32) - 1));
-}
-
-uint32_t GOST1989::RightShift(uint32_t const& x)
-{
-    return (((x >> 11) | (x << (-11 & (32 - 1)))) & (((uint64_t)1 << 32) - 1));
-}
-
-uint64_t GOST1989::Join32To64(uint32_t const& block32_1, uint32_t const& block32_2)
+uint64_t GOST1989::Join32To64(uint32_t const& N1, uint32_t const& N2)
 {
     uint64_t block64;
     // block64b = 10101010101010101010101010101010 = 
     // 0000000000000000000000000000000010101010101010101010101010101010
-    block64 = block32_2;
+    block64 = N2;
     // block64b = 
     // = (0000000000000000000000000000000010101010101010101010101010101010 << 32) | 11111111111111111111111111111111 = 
     // = 1010101010101010101010101010101000000000000000000000000000000000 | 11111111111111111111111111111111 = 
     // = 101010101010101010101010101010111111111111111111111111111111111
-    block64 = (block64 << 32) | block32_1;
+    block64 = (block64 << 32) | N1;
     return block64;
 }
 
@@ -48,7 +37,7 @@ void GOST1989::Split64To8(uint64_t const& block64, std::vector<uint8_t>& blocks8
         // = (uint8_t)0000101010101010101010101010101010101010101010101010101010101111 >> 56 =
         // = (uint8_t)0000000000000000000000000000000000000000000000000000000000001010 =
         // = 00001010
-        blocks8.push_back((uint8_t)(block64 >> ((7 - i) * 8)));
+        blocks8.push_back((uint8_t)(block64 >> (56 - (i * 8))));
     }
 }
 
@@ -78,18 +67,18 @@ void GOST1989::SubstitutionTableBy4(std::vector<uint8_t>& blocks4, uint8_t const
     for (uint8_t i = 0; i < 4; ++i)
     {
         // 10101100 & 0x0F = 00001100
-        // [example get from table] 1100 -> 1001
+        // 1100 -> 1001
         block4_1 = m_sbox[sboxRow][blocks4[i] & 0x0F];
 
         // 10101100 >> 4 = 00001010
-        // [example get from table] 1010 -> 0111
+        // 1010 -> 0111
         block4_2 = m_sbox[sboxRow][blocks4[i] >> 4];
 
-        // 00001001
+        // 00000111
         blocks4[i] = block4_2;
 
-        // (00001001 << 4) | 0111 = 
-        // 1001000 | 0111 = 10010111 
+        // (00000111 << 4) | 1001 = 
+        // 01110000 | 1001 = 01111001 
         blocks4[i] = (blocks4[i] << 4) | block4_1;
     }
 }
@@ -98,8 +87,8 @@ void GOST1989::Split32To8(uint32_t const& block32, std::vector<uint8_t>& blocks8
 {
     for (uint8_t i = 0; i < 4; ++i)
     {
-        // blocks8b[0] = (uint8_t)10111101000101010100101110100010 >> (28 - (0 * 8)) =
-        // = (uint8_t)10101010101010101010101010101010 >> 28 = 
+        // blocks8b[0] = (uint8_t)10111101000101010100101110100010 >> (24 - (0 * 8)) =
+        // = (uint8_t)10101010101010101010101010101010 >> 24 = 
         // = (uint8_t)00000000000000000000000010111101
         // = 10111101
         blocks8.push_back((uint8_t)(block32 >> (24 - (i * 8))));
@@ -162,53 +151,54 @@ void GOST1989::Split256To32(std::vector<uint8_t> const& key256, std::vector<uint
     }
 }
 
-void GOST1989::RoundOfFeistelCipher(uint32_t& block32_1, uint32_t& block32_2, std::vector<uint32_t> const& keys32, uint8_t const& round)
+void GOST1989::RoundOfFeistelCipher(uint32_t& N1, uint32_t& N2, std::vector<uint32_t> const& keys32, uint8_t const& round)
 {
-    uint32_t resultOfIter, temp;
+    uint32_t resultOfIter;
+    uint32_t Ki = keys32[round % 8];
 
     // RES = (N1 + Ki) mod 2^32
-    resultOfIter = (block32_1 + keys32[round % 8]) % UINT32_MAX;
+    resultOfIter = (N1 + Ki) % UINT32_MAX;
 
     // RES = RES -> Sbox
     resultOfIter = SubstitutionTable(resultOfIter, round % 8);
 
     // RES = RES << 11
-    resultOfIter = LeftShift(resultOfIter);
+    resultOfIter <<= 11;
 
     // N1, N2 = (RES xor N2), N1
-    temp = block32_1;
-    block32_1 = resultOfIter ^ block32_2;
-    block32_2 = temp;
+    N2 ^= resultOfIter;
+    std::swap(N1, N2);
 }
 
 //keys32 [K0, K1, K2, K3, K4, K5, K6, K7]
-void GOST1989::FeistelCipher(CryptMode const& mode, uint32_t& block32_1, uint32_t& block32_2, std::vector<uint32_t> const& keys32)
+void GOST1989::FeistelCipher(CryptMode const& mode, uint32_t& N1, uint32_t& N2, std::vector<uint32_t> const& keys32)
 {
     if (mode == CryptMode::ENCRYPT)
     {
-        // K0, K1, K2, K3, K4, K5, K6, K7, K0, K1, K2, K3, K4, K5, K6, K7, K0, K1, K2, K3, K4, K5, K6, K7
+        // | K0, K1, K2, K3, K4, K5, K6, K7 | K0, K1, K2, K3, K4, K5, K6, K7 | K0, K1, K2, K3, K4, K5, K6, K7 |
         for (uint8_t round = 0; round < 24; ++round)
         {
-            RoundOfFeistelCipher(block32_1, block32_2, keys32, round);
+            RoundOfFeistelCipher(N1, N2, keys32, round);
         }
-        // K7, K6, K5, K4, K3, K2, K1, K0
+
+        // | K7, K6, K5, K4, K3, K2, K1, K0 |
         for (uint8_t round = 31; round >= 24; --round)
         {
-            RoundOfFeistelCipher(block32_1, block32_2, keys32, round);
+            RoundOfFeistelCipher(N1, N2, keys32, round);
         }
     }
     else if (mode == CryptMode::DECRYPT)
     {
-        // K0, K1, K2, K3, K4, K5, K6, K7
+        // | K0, K1, K2, K3, K4, K5, K6, K7 |
         for (uint8_t round = 0; round < 8; ++round)
         {
-            RoundOfFeistelCipher(block32_1, block32_2, keys32, round);
+            RoundOfFeistelCipher(N1, N2, keys32, round);
         }
 
-        // K7, K6, K5, K4, K3, K2, K1, K0, K7, K6, K5, K4, K3, K2, K1, K0, K7, K6, K5, K4, K3, K2, K1, K0
+        // | K7, K6, K5, K4, K3, K2, K1, K0 | K7, K6, K5, K4, K3, K2, K1, K0 | K7, K6, K5, K4, K3, K2, K1, K0 |
         for (uint8_t round = 31; round >= 8; --round)
         {
-            RoundOfFeistelCipher(block32_1, block32_2, keys32, round);
+            RoundOfFeistelCipher(N1, N2, keys32, round);
         }
     }
 }
@@ -239,23 +229,23 @@ std::string GOST1989::CryptMessage(
 )
 {
     std::vector<uint8_t> messageCrypt;
-    std::vector<uint32_t> keys32;
     std::vector<uint8_t> key256 = StringToByteArray(key);
     uint32_t N1, N2;
 
-    size_t lengthMessage = message.size() % 8 == 0 ? message.size() : message.size() + (8 - (message.size() % 8));
+    size_t lengthMessage = (message.size() % 8 == 0) ? message.size() : message.size() + (8 - (message.size() % 8));
 
     if (mode == CryptMode::ENCRYPT) m_numberOfAddedLetters = lengthMessage - message.size();
 
     while (message.size() != lengthMessage) message.push_back(static_cast<uint8_t>(0));
 
-    Split256To32(key256, keys32);
+    std::vector<uint32_t> blocks32;
+    Split256To32(key256, blocks32);
 
     for (size_t i = 0; i < lengthMessage; i += 8)
     {
         std::vector<uint8_t> subMessage(message.begin() + i, message.begin() + i + 8);
         Split64To32(Join8To64(subMessage), N1, N2);
-        FeistelCipher(mode, N1, N2, keys32);
+        FeistelCipher(mode, N1, N2, blocks32);
         Split64To8(Join32To64(N1, N2), messageCrypt);
     }
 
