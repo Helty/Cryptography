@@ -1,7 +1,14 @@
 #include "GOSTHash94.h"
 #include <bitset>
+#include <bit>
 
-const std::vector<std::vector<uint8_t>> m_sbox = {
+namespace 
+{
+	using ByteArray = std::vector<uint8_t>;
+}
+
+
+const std::vector<ByteArray> m_sbox = {
 	{0x4, 0xA, 0x9, 0x2, 0xD, 0x8, 0x0, 0xE, 0x6, 0xB, 0x1, 0xC, 0x7, 0xF, 0x5, 0x3},
 	{0xE, 0xB, 0x4, 0xC, 0x6, 0xD, 0xF, 0xA, 0x2, 0x3, 0x8, 0x1, 0x0, 0x7, 0x5, 0x9},
 	{0x5, 0x8, 0x1, 0xD, 0xA, 0x3, 0x4, 0x2, 0xE, 0xF, 0xC, 0x7, 0x6, 0x0, 0x9, 0xB},
@@ -11,6 +18,7 @@ const std::vector<std::vector<uint8_t>> m_sbox = {
 	{0xD, 0xB, 0x4, 0x1, 0x3, 0xF, 0x5, 0x9, 0x0, 0xA, 0xE, 0x7, 0x6, 0x8, 0x2, 0xC},
 	{0x1, 0xF, 0xD, 0x0, 0x5, 0x7, 0xA, 0x4, 0x9, 0x2, 0x3, 0xE, 0x6, 0xB, 0x8, 0xC},
 };
+
 const std::vector<uint256_t> c_const = {
 		0,
 		uint256_t("0xff00ffff000000ffff0000ff00ffff0000ff00ff00ff00ffff00ff00ff00ff00"),
@@ -59,8 +67,8 @@ void Split32To8(uint32_t const& from, std::vector<uint8_t>& to)
 }
 uint256_t Join64To256(std::vector<uint64_t> const& from)
 {
-	uint256_t block256 = 0;
-	for (uint64_t i = 0; i < 4; ++i)
+	uint256_t block256 = from[0];
+	for (uint64_t i = 1; i < 4; ++i)
 	{
 		block256 = (block256 << 64) | from[i];
 	}
@@ -68,8 +76,8 @@ uint256_t Join64To256(std::vector<uint64_t> const& from)
 }
 uint256_t Join16To256(std::vector<uint16_t> const& from)
 {
-	uint256_t block256 = 0;
-	for (uint64_t i = 0; i < 16; ++i)
+	uint256_t block256 = from[0];
+	for (uint64_t i = 1; i < 16; ++i)
 	{
 		block256 = (block256 << 16) | from[i];
 	}
@@ -77,8 +85,8 @@ uint256_t Join16To256(std::vector<uint16_t> const& from)
 }
 uint256_t Join8To256(std::vector<uint8_t> const& from)
 {
-	uint256_t block256 = 0;
-	for (uint64_t i = 0; i < 32; ++i)
+	uint256_t block256 = from[0];
+	for (uint64_t i = 1; i < 32; ++i)
 	{
 		block256 = (block256 << 8) | from[i];
 	}
@@ -128,39 +136,64 @@ uint256_t VectorBoolToDecimal(std::vector<bool> const& block256)
 	return dec_value;
 }
 
-void SubstitutionTableBy4(std::vector<uint8_t>& blocks4, uint8_t const& sboxRow)
+void SubstitutionTableBy4(std::vector<uint8_t>& blocks4)
 {
-	uint8_t block4_1, block4_2;
+	uint8_t block4_1, block4_2, sboxRow = 0;
 
 	for (uint8_t i = 0; i < 4; ++i)
 	{
-		block4_1 = m_sbox[sboxRow][blocks4[i] & 0x0F];
-		block4_2 = m_sbox[sboxRow][blocks4[i] >> 4];
+		block4_1 = m_sbox[sboxRow++][blocks4[i] & 0x0F];
+		block4_2 = m_sbox[sboxRow++][blocks4[i] >> 4];
 		blocks4[i] = block4_2;
 		blocks4[i] = (blocks4[i] << 4) | block4_1;
 	}
+	uint8_t tmp = blocks4[3];
+	blocks4[3] = blocks4[2];
+	blocks4[2] = blocks4[1];
+	blocks4[1] = blocks4[0];
+	blocks4[0] = tmp;
+	tmp = blocks4[0] >> 5;
+	for (uint8_t i = 1; i < 4; i++)
+	{
+		uint8_t nTmp = blocks4[i] >> 5;
+		blocks4[i] = (blocks4[i] << 3) | tmp;
+		tmp = nTmp;
+	}
+	blocks4[0] = (blocks4[0] << 3) | tmp;
 }
-uint32_t SubstitutionTable(uint32_t const& block32, uint8_t const& sboxRow)
+uint32_t SubstitutionTable(uint32_t const& block32)
 {
 	std::vector<uint8_t> blocks4;
 	Split32To8(block32, blocks4); //4
-	SubstitutionTableBy4(blocks4, sboxRow);
+	SubstitutionTableBy4(blocks4);
 	return Join4To32(blocks4); // 5
 }
 void RoundOfFeistelCipher(uint32_t& A0, uint32_t& B0, std::vector<uint32_t> const& keys32, uint8_t const& round)
 {
-	// RES = (N1 + Ki) mod 2^32
-	uint32_t resultOfIter = A0 + keys32[round % 8];
+	uint32_t resultOfIter = 0, temp = 0;
+
+	for (size_t i = 0; i < 4; i++)
+	{
+		uint8_t first = static_cast<uint8_t>(A0 >> (24 - (i * 8)));
+		uint8_t second = static_cast<uint8_t>(keys32[round % 8] >> (24 - (i * 8)));
+
+		temp += first + second;
+		resultOfIter = (resultOfIter << 8) | (temp & 0xFF);
+		temp >>= 8;
+	}
+
+	//uint32_t resultOfIter = (A0 + keys32[round % 8]) % UINT32_MAX;
 
 	// RES = RES -> Sbox
-	resultOfIter = SubstitutionTable(resultOfIter, round % 8);
+	resultOfIter = SubstitutionTable(resultOfIter);
 
 	// RES = RES << 11
-	resultOfIter <<= 11;
+	//resultOfIter = std::rotl(resultOfIter, 11);
 
 	// N1, N2 = (RES xor N2), N1
-	B0 ^= resultOfIter;
-	std::swap(A0, B0); //6
+	resultOfIter ^= B0;
+	B0 = A0;
+	A0 = resultOfIter;
 }
 void FeistelCipher(uint32_t& A0, uint32_t& B0, std::vector<uint32_t> const& keys32)
 {
@@ -221,8 +254,6 @@ uint256_t TransformationW(uint256_t const& Y, size_t counter)
 	std::vector<uint16_t> y;
 	Split256To16(Y, y);
 
-	std::reverse(y.begin(), y.end());
-
 	for (size_t i = 0; i < counter; i++)
 	{
 		uint16_t s = (y[0] ^ y[1] ^ y[2] ^ y[3] ^ y[12] ^ y[15]);
@@ -231,32 +262,33 @@ uint256_t TransformationW(uint256_t const& Y, size_t counter)
 		y[15] = s;
 	}
 
-	std::reverse(y.begin(), y.end());
-
 	return Join16To256(y);
 }
 
-void Split256To32Ver(uint256_t const& from, std::vector<uint32_t>& to)
+void Split256To32Inv(uint256_t const& from, std::vector<uint32_t>& to)
 {
 	for (size_t i = 0; i < 8; ++i)
 	{
-		uint32_t temp;
+		uint32_t res = 0;
+		uint32_t temp32 = (uint32_t)(from >> (i * 32));
+
 		for (size_t i = 0; i < 4; ++i)
 		{
-			temp = (uint32_t)(from >> (248 - (i * 8))) & 0xFF;
+			uint8_t temp8 = (uint8_t)(temp32 >> (i * 8));
+			res = (res << 8) | temp8;
 		}
 
-		to.push_back(temp);
+		to.push_back(res);
 	}
 }
 
 uint64_t TransformationE(uint64_t const& h, uint256_t const& key)
 {
 	uint32_t A, B;
-	Split64To32(h, A, B); //2
+	Split64To32(h, A, B);
 
 	std::vector<uint32_t> keys32;
-	Split256To32Ver(key, keys32); //3
+	Split256To32Inv(key, keys32);
 
 	FeistelCipher(A, B, keys32);
 
@@ -287,31 +319,41 @@ uint256_t EncryptionTransformation(uint256_t const& hash, std::vector<uint256_t>
 
 	for (size_t i = 0; i < 4; i++)
 	{
-		std::cout << "Key" << i << ": " << std::hex << keys[i] << std::endl;
-		std::cout << "h" << i << ": " << std::hex << h[i] << std::endl;
 		s.push_back(TransformationE(h[i], keys[i]));
-		std::cout << "s" << i << ": " << std::dec << s[i] << std::endl << std::endl;
+		std::cout << "s" << i << ": " << std::hex << s[i] << std::endl << std::endl;
+
 	}
 
 	return Join64To256(s); //8
 }
-uint256_t ShuffleTransformation(uint256_t const& hash, uint256_t const& S, uint256_t const& m)
+void ShuffleTransformation(uint256_t& hash, uint256_t const& S, uint256_t const& m)
 {
-	return TransformationW(hash ^ TransformationW(m ^ TransformationW(S, 12), 1), 61);
+	uint256_t first = TransformationW(S, 12);
+	std::cout << "first" << ": " << std::hex << first << std::endl << std::endl;
+
+	uint256_t second = m ^ first;
+	std::cout << "second после xor" << ": " << std::hex << second << std::endl << std::endl;
+	second = TransformationW(second, 1);
+	std::cout << "second после W" << ": " << std::hex << second << std::endl << std::endl;
+	uint256_t thrid = hash ^ second;
+	std::cout << "thrid после xor" << ": " << std::hex << thrid << std::endl << std::endl;
+	thrid = TransformationW(thrid, 61);
+	std::cout << "thrid после W" << ": " << std::hex << thrid << std::endl << std::endl;
+	hash = thrid;
 }
 
 std::string CGOSTHash94::Hashed(std::string const& message)
 {
-	uint256_t hash = 0, K = 0, L = 0, m, m2;
+	uint256_t hash = 0, Sum = 0, m;
 
 	std::vector<bool> binaryMessage;
 	std::string invertString = message;
 	std::reverse(invertString.begin(), invertString.end());
 	StringToVectorBool(binaryMessage, invertString);
 
-	L = binaryMessage.size();
-
 	while (binaryMessage.size() % 256 != 0) binaryMessage.push_back(0);
+
+	size_t L = binaryMessage.size();
 
 	for (size_t i = 0; i < binaryMessage.size(); i += 256)
 	{
@@ -319,12 +361,13 @@ std::string CGOSTHash94::Hashed(std::string const& message)
 
 		m = VectorBoolToDecimal(block256);
 
+		Sum += m;
+
 		Compression(hash, m);
-		K += m;
 	}
 
 	Compression(hash, L);
-	Compression(hash, K);
+	Compression(hash, Sum);
 
 	std::stringstream sstream;
 	sstream << std::hex << hash;
@@ -335,6 +378,31 @@ std::string CGOSTHash94::Hashed(std::string const& message)
 void CGOSTHash94::Compression(uint256_t& hash, uint256_t const& m)
 {
 	std::vector<uint256_t> keys = KeyGeneration(hash, m);
+	std::vector<uint8_t> hashNew;
+
+	std::cout << "k0" << ": " << std::hex << keys[0] << std::endl << std::endl;
+	std::cout << "k1" << ": " << std::hex << keys[1] << std::endl << std::endl;
+	std::cout << "k2" << ": " << std::hex << keys[2] << std::endl << std::endl;
+	std::cout << "k3" << ": " << std::hex << keys[3] << std::endl << std::endl;
+
+	Split256To8(hash, hashNew);
+	std::reverse(hashNew.begin(), hashNew.end());
+	hash = Join8To256(hashNew);
+
 	uint256_t S = EncryptionTransformation(hash, keys);
-	hash = ShuffleTransformation(hash, S, m);
+	std::cout << "S" << ": " << std::hex << S << std::endl << std::endl;
+	std::cout << "m" << ": " << std::hex << m << std::endl << std::endl;
+	
+	std::vector<uint8_t> mNew;
+	Split256To8(m, mNew);
+	std::reverse(mNew.begin(), mNew.end());
+	uint256_t mNew256 = Join8To256(mNew);
+
+	ShuffleTransformation(hash, S, mNew256);
+
+	Split256To8(hash, hashNew);
+	std::reverse(hashNew.begin(), hashNew.end());
+	hash = Join8To256(hashNew);
+
+	std::cout << "hash" << ": " << std::hex << hash << std::endl << std::endl;
 }
