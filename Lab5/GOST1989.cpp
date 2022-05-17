@@ -1,4 +1,4 @@
-#include "GOST1989.h"
+ #include "GOST1989.h"
 
 namespace
 {
@@ -129,7 +129,7 @@ void GOST1989::Split64To32(uint64_t const& block64, uint32_t& block32_1, uint32_
     block32_1 = (uint32_t)(block64 >> 32);
 }
 
-void GOST1989::Split256To32(std::vector<uint8_t> const& key256, std::vector<uint32_t>& keys32)
+void GOST1989::Split256To32(std::vector<uint8_t> const& blocks256, std::vector<uint32_t>& blocks32)
 {
     size_t countBlock = 0;
 

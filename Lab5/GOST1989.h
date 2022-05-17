@@ -37,10 +37,6 @@ private:
 
     std::string ByteArrayToString(std::vector<uint8_t> const& str);
 
-    uint32_t LeftShift(uint32_t const& x);
-
-    uint32_t RightShift(uint32_t const& x);
-
     void SubstitutionTableBy4(std::vector<uint8_t>& blocks4, uint8_t const& sboxRow);
 
     uint32_t SubstitutionTable(uint32_t const& block32, uint8_t const& sboxRow);
