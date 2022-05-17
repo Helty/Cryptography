@@ -1,7 +1,4 @@
 #include "GOSTHash94.h"
-#include <iomanip>
-#include <bitset>
-#include <bit>
 
 namespace 
 {
@@ -28,7 +25,7 @@ namespace
 	};
 }
 
-void Split256To32Inv(ByteArray const& from, std::vector<ByteArray>& to)
+void CGOSTHash94::Split256To32Inv(ByteArray const& from, std::vector<ByteArray>& to)
 {
 	for (size_t step = 0; step < 8; step++)
 	{
@@ -36,120 +33,7 @@ void Split256To32Inv(ByteArray const& from, std::vector<ByteArray>& to)
 		to.push_back(temp4bytes);
 	}
 }
-void Split256To64(uint256_t const& from, std::vector<uint64_t>& to)
-{
-	for (size_t i = 0; i < 4; ++i)
-	{
-		to.push_back((uint64_t)(from >> (192 - (i * 64))));
-	}
-}
-void Split256To32(uint256_t const& from, std::vector<uint32_t>& to)
-{
-	for (size_t i = 0; i < 8; ++i)
-	{
-		to.push_back((uint32_t)(from >> (224 - (i * 32))));
-	}
-}
-void Split256To16(uint256_t const& from, std::vector<uint16_t>& to)
-{
-	for (size_t i = 0; i < 16; ++i)
-	{
-		to.push_back((uint16_t)(from >> (240 - (i * 16))));
-	}
-}
-void Split256To8(uint256_t const& from, std::vector<uint8_t>& to)
-{
-	for (size_t i = 0; i < 32; ++i)
-	{
-		to.push_back((uint8_t)(from >> (248 - (i * 8))));
-	}
-}
-void Split64To32(uint256_t const& from, uint32_t& to1, uint32_t& to2)
-{
-	to2 = (uint32_t)(from);
-	to1 = (uint32_t)(from >> 32);
-}
-void Split32To8(uint32_t const& from, std::vector<uint8_t>& to)
-{
-	for (uint8_t i = 0; i < 4; ++i)
-	{
-		to.push_back((uint8_t)(from >> (24 - (i * 8))));
-	}
-}
-uint256_t Join64To256(std::vector<uint64_t> const& from)
-{
-	uint256_t block256 = from[0];
-	for (uint64_t i = 1; i < 4; ++i)
-	{
-		block256 = (block256 << 64) | from[i];
-	}
-	return block256;
-}
-uint256_t Join16To256(std::vector<uint16_t> const& from)
-{
-	uint256_t block256 = from[0];
-	for (uint64_t i = 1; i < 16; ++i)
-	{
-		block256 = (block256 << 16) | from[i];
-	}
-	return block256;
-}
-uint256_t Join8To256(std::vector<uint8_t> const& from)
-{
-	uint256_t block256 = from[0];
-	for (uint64_t i = 1; i < 32; ++i)
-	{
-		block256 = (block256 << 8) | from[i];
-	}
-	return block256;
-}
-uint64_t Join32To64(uint32_t const& N1, uint32_t const& N2)
-{
-	uint64_t block64;
-	block64 = N2;
-	block64 = (block64 << 32) | N1;
-	return block64;
-}
-uint32_t Join4To32(std::vector<uint8_t> const& from)
-{
-	uint32_t block32 = 0;
-	for (uint8_t i = 0; i < 4; ++i)
-	{
-		block32 = (block32 << 8) | from[i];
-	}
-	return block32;
-}
-
-ByteArray StringToByteArray(std::string const& str)
-{
-	ByteArray result;
-
-	std::for_each(str.begin(), str.end(), [&result](unsigned char const& byte)
-		{
-			result.push_back(byte);
-		}
-	);
-
-	return result;
-}
-uint256_t ByteArrayTo256(ByteArray const& byteArray)
-{
-	uint256_t result;
-
-	if (byteArray.size() != 32)
-	{
-		throw std::exception("Массив байт меньше 32! Перевод в uint256_t некорректен.");
-	}
-
-	std::for_each(byteArray.begin(), byteArray.end(), [&result](unsigned char const& byte)
-		{
-			result = (result << 8) | byte;
-		}
-	);
-
-	return result;
-}
-ByteArray Split256ToByteArray(uint256_t const& dec)
+ByteArray CGOSTHash94::Split256ToByteArray(uint256_t const& dec)
 {
 	ByteArray result;
 
@@ -162,35 +46,76 @@ ByteArray Split256ToByteArray(uint256_t const& dec)
 
 	return result;
 }
-
-std::string ToStringBitSequence(std::string const& message)
+ByteArray CGOSTHash94::StringToByteArray(std::string const& str)
 {
-	std::string binaryString;
+	ByteArray result;
 
-	for (auto& symbol : message) binaryString += std::bitset<8>(symbol).to_string();
+	std::for_each(str.begin(), str.end(), [&result](unsigned char const& byte)
+		{
+			result.push_back(byte);
+		}
+	);
 
-	return binaryString;
+	return result;
 }
-void StringToVectorBool(std::vector<bool> & binarySequence, std::string const& message)
-{
-	for (auto bit : ToStringBitSequence(message)) binarySequence.push_back(bit == '1');
-}
-uint256_t VectorBoolToDecimal(std::vector<bool> const& block256)
-{
-	std::vector<bool> newblock256 = block256;
-	uint256_t dec_value = 0, base = 1;
 
-	while (!newblock256.empty())
+void CGOSTHash94::TransformationW(ByteArray& Y, size_t counter)
+{
+	while (counter--)
 	{
-		if (newblock256[newblock256.size() - 1]) dec_value += base;
-		base *= 2;
-		newblock256.pop_back();
-	}
+		std::pair<uint8_t, uint8_t> block16bytes = { 0, 0 };
 
-	return dec_value;
+		block16bytes.first ^= Y[0];  block16bytes.second ^= Y[1];
+		block16bytes.first ^= Y[2];  block16bytes.second ^= Y[3];
+		block16bytes.first ^= Y[4];  block16bytes.second ^= Y[5];
+		block16bytes.first ^= Y[6];  block16bytes.second ^= Y[7];
+		block16bytes.first ^= Y[24]; block16bytes.second ^= Y[25];
+		block16bytes.first ^= Y[30]; block16bytes.second ^= Y[31];
+
+		for (size_t step = 0; step < 30; step++) Y[step] = Y[step + 2];
+
+		Y[30] = block16bytes.first;
+		Y[31] = block16bytes.second;
+	}
+}
+ByteArray CGOSTHash94::TransformationE(ByteArray const& h, ByteArray const& key)
+{
+	ByteArray A(h.begin(), h.end() - 4);
+	ByteArray B(h.begin() + 4, h.end());
+
+	std::vector<ByteArray> keys32;
+	Split256To32Inv(key, keys32);
+
+	FeistelCipher(A, B, keys32);
+
+	B.insert(B.end(), A.begin(), A.end());
+	return B;
+}
+ByteArray CGOSTHash94::TransformationP(ByteArray const& Y)
+{
+	ByteArray result;
+	for (size_t i = 0; i < 32; i++) result.push_back(Y[fi(i)]);
+	return result;
+}
+ByteArray CGOSTHash94::TransformationA(ByteArray const& Y)
+{
+	ByteArray result;
+	for (size_t i = 0; i < 24; i++) result.push_back(Y[i + 8]);
+	for (size_t i = 0; i < 8; i++) result.push_back(Y[i] ^ Y[i + 8]);
+	return result;
 }
 
-void SubstitutionTable(ByteArray& blocks4bytes)
+void CGOSTHash94::ShuffleTransformation(ByteArray& hash, ByteArray& S, ByteArray const& M)
+{
+	TransformationW(S, 12);
+	for (size_t i = 0; i < 32; i++) S[i] ^= M[i];
+	TransformationW(S, 1);
+	for (size_t i = 0; i < 32; i++) S[i] ^= hash[i];
+	TransformationW(S, 61);
+	hash = S;
+}
+
+void CGOSTHash94::SubstitutionTable(ByteArray& blocks4bytes)
 {
 	uint8_t block4_1, block4_2, sboxRow = 0;
 
@@ -217,12 +142,12 @@ void SubstitutionTable(ByteArray& blocks4bytes)
 
 	blocks4bytes[0] = (blocks4bytes[0] << 3) | tmp;
 }
-void RoundOfFeistelCipher(ByteArray& A0, ByteArray& B0, ByteArray const& keys32)
+void CGOSTHash94::RoundOfFeistelCipher(ByteArray& A0, ByteArray& B0, ByteArray const& keys32)
 {
 	ByteArray resultOfIter;
 
 	uint32_t temp = 0;
-	//uint32_t resultOfIter = (A0 + keys32[round % 8]) % UINT32_MAX;
+
 	for (size_t i = 0; i < 4; i++)
 	{
 		temp += A0[i] + keys32[i];
@@ -230,16 +155,14 @@ void RoundOfFeistelCipher(ByteArray& A0, ByteArray& B0, ByteArray const& keys32)
 		temp >>= 8;
 	}
 
-	// RES = RES -> Sbox
 	SubstitutionTable(resultOfIter);
 
 	// N1, N2 = (RES xor N2), N1
 	for (size_t i = 0; i < 4; i++) resultOfIter[i] ^= B0[i];
-
 	B0 = A0;
 	A0 = resultOfIter;
 }
-void FeistelCipher(ByteArray& A0, ByteArray& B0, std::vector<ByteArray> const& keys32)
+void CGOSTHash94::FeistelCipher(ByteArray& A0, ByteArray& B0, std::vector<ByteArray> const& keys32)
 {
 	// | K0, K1, K2, K3, K4, K5, K6, K7 | K0, K1, K2, K3, K4, K5, K6, K7 | K0, K1, K2, K3, K4, K5, K6, K7 |
 	for (uint8_t round = 0; round < 24; ++round)
@@ -253,59 +176,26 @@ void FeistelCipher(ByteArray& A0, ByteArray& B0, std::vector<ByteArray> const& k
 		RoundOfFeistelCipher(A0, B0, keys32[round % 8]);
 	}
 }
-
-ByteArray TransformationA(ByteArray const& Y)
+ByteArray CGOSTHash94::EncryptionTransformation(ByteArray const& hash, std::vector<ByteArray> const& keys)
 {
-	ByteArray result;
-	for (size_t i = 0; i < 24; i++) result.push_back(Y[i + 8]);
-	for (size_t i = 0; i < 8; i++) result.push_back(Y[i] ^ Y[i + 8]);
-	return result;
+	ByteArray S, s;
+
+	for (size_t step = 0; step < 4; step++)
+	{
+		ByteArray block8Bytes(hash.begin() + (step * 8), hash.begin() + (step * 8) + 8);
+		s = TransformationE(block8Bytes, keys[step]);
+		S.insert(S.end(), s.begin(), s.end());
+	}
+
+	return S;
 }
-size_t fi(size_t const& arg)
+
+size_t CGOSTHash94::fi(size_t const& arg)
 {
 	size_t i = (arg & 3), k = (arg >> 2);
 	return (i << 3) + (++k) - 1;
 }
-ByteArray TransformationP(ByteArray const& Y)
-{
-	ByteArray result;
-	for (size_t i = 0; i < 32; i++) result.push_back(Y[fi(i)]);
-	return result;
-}
-void TransformationW(ByteArray& Y, size_t counter)
-{
-	while (counter--)
-	{
-		std::pair<uint8_t, uint8_t> block16bytes = { 0, 0 };
-
-		block16bytes.first ^= Y[0];  block16bytes.second ^= Y[1];
-		block16bytes.first ^= Y[2];  block16bytes.second ^= Y[3];
-		block16bytes.first ^= Y[4];  block16bytes.second ^= Y[5];
-		block16bytes.first ^= Y[6];  block16bytes.second ^= Y[7];
-		block16bytes.first ^= Y[24]; block16bytes.second ^= Y[25];
-		block16bytes.first ^= Y[30]; block16bytes.second ^= Y[31];
-
-		for (size_t step = 0; step < 30; step++) Y[step] = Y[step + 2];
-
-		Y[30] = block16bytes.first;
-		Y[31] = block16bytes.second;
-	}
-}
-ByteArray TransformationE(ByteArray const& h, ByteArray const& key)
-{
-	ByteArray A(h.begin(), h.end() - 4);
-	ByteArray B(h.begin() + 4, h.end());
-
-	std::vector<ByteArray> keys32;
-	Split256To32Inv(key, keys32);
-
-	FeistelCipher(A, B, keys32);
-
-	B.insert(B.end(), A.begin(), A.end());
-	return B;
-}
-
-std::vector<ByteArray> KeyGeneration(ByteArray const& hash, ByteArray const& m)
+std::vector<ByteArray> CGOSTHash94::KeyGeneration(ByteArray const& hash, ByteArray const& m)
 {
 	std::vector<ByteArray> keys;
 	ByteArray W, C, U = hash, V = m;
@@ -328,27 +218,14 @@ std::vector<ByteArray> KeyGeneration(ByteArray const& hash, ByteArray const& m)
 
 	return keys;
 }
-ByteArray EncryptionTransformation(ByteArray const& hash, std::vector<ByteArray> const& keys)
-{
-	ByteArray S, s;
 
-	for (size_t step = 0; step < 4; step++)
-	{
-		ByteArray block8Bytes(hash.begin() + (step * 8), hash.begin() + (step * 8) + 8);
-	    s = TransformationE(block8Bytes, keys[step]);
-		S.insert(S.end(), s.begin(), s.end());
-	}
-
-	return S;
-}
-void ShuffleTransformation(ByteArray& hash, ByteArray& S, ByteArray const& M)
+void CGOSTHash94::Compression(ByteArray& hash, ByteArray const& m)
 {
-	TransformationW(S, 12);
-	for (size_t i = 0; i < 32; i++) S[i] ^= M[i];
-	TransformationW(S, 1);
-	for (size_t i = 0; i < 32; i++) S[i] ^= hash[i];
-	TransformationW(S, 61);
-	hash = S;
+	std::vector<ByteArray> keys = KeyGeneration(hash, m);
+
+	ByteArray S = EncryptionTransformation(hash, keys);
+	
+	ShuffleTransformation(hash, S, m);
 }
 
 std::string CGOSTHash94::Hashed(std::string const& message)
@@ -356,7 +233,7 @@ std::string CGOSTHash94::Hashed(std::string const& message)
 	ByteArray hash(32, 0), Sum(32, 0), m;
 	ByteArray messageByteArray = StringToByteArray(message);
 	ByteArray length = Split256ToByteArray(messageByteArray.size() * 8);
-	
+
 	while (messageByteArray.size() % 32 != 0) messageByteArray.push_back(0);
 
 	for (size_t step = 0; step < messageByteArray.size(); step += 32)
@@ -382,13 +259,4 @@ std::string CGOSTHash94::Hashed(std::string const& message)
 	std::stringstream sstream;
 	for (size_t i = 0; i < 32; i++) sstream << std::setw(2) << std::setfill('0') << std::hex << (int)hash[i];
 	return sstream.str();
-}
-
-void CGOSTHash94::Compression(ByteArray& hash, ByteArray const& m)
-{
-	std::vector<ByteArray> keys = KeyGeneration(hash, m);
-
-	ByteArray S = EncryptionTransformation(hash, keys);
-	
-	ShuffleTransformation(hash, S, m);
 }
