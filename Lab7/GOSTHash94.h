@@ -5,14 +5,14 @@
 #include <boost/lexical_cast.hpp>
 
 using namespace boost::multiprecision;
+using ByteArray = std::vector<uint8_t>;
 
 class CGOSTHash94
 {
 public:
-
 	static std::string Hashed(std::string const& message);
 
 private:
-	static void Compression(uint256_t& hash, uint256_t const& m);
+	static void Compression(ByteArray& hash, ByteArray const& m);
 };
 

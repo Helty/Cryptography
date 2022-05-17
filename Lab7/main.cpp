@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
 
-    std::string message = "This is message, length=32 bytes";/*GetMessageFromUser();*/
+    std::string message = GetMessageFromUser();
     std::string hash = CGOSTHash94::Hashed(message);
 
     std::cout << "Сообщение: " << message << std::endl;
