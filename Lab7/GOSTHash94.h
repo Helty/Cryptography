@@ -8,6 +8,7 @@
 
 using namespace boost::multiprecision;
 using ByteArray = std::vector<uint8_t>;
+using ByteMatrix = std::vector<ByteArray>;
 
 class CGOSTHash94
 {
