@@ -40,6 +40,7 @@ private:
 	void InvSubBytes(ByteMatrix& state);
 	void InvMixColumns(ByteMatrix& state);
 
+	uint8_t GFM(uint8_t a, uint8_t b);
 	ByteArray SplitMatrixToArray(ByteMatrix const& state);
 	ByteMatrix ByteArrayToByteMatrix(ByteArray const& message);
 
