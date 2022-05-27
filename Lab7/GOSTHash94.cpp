@@ -153,7 +153,7 @@ ByteArray CGOSTHash94::TransformationP(ByteArray const& Y)
 ByteArray CGOSTHash94::TransformationA(ByteArray const& Y)
 {
 	ByteArray result;
-	for (size_t i = 0; i < 24; i++) result.push_back(Y[i + 8]);
+	for (size_t i = 8; i < 32; i++) result.push_back(Y[i]);
 	for (size_t i = 0; i < 8; i++) result.push_back(Y[i] ^ Y[i + 8]);
 	return result;
 }
