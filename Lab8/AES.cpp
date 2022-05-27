@@ -85,11 +85,41 @@ namespace
         return result;
     }
 
+    uint8_t GFM(uint8_t a, uint8_t b)
+    {
+        uint8_t p = 0;
+
+        for (size_t counter = 0; counter < 8; counter++)
+        {
+            if ((b & 1) != 0) p ^= a;
+
+            bool hi_bit_set = (a & 0x80) != 0;
+            a <<= 1;
+            if (hi_bit_set) a ^= 0x1B; /* x^8 + x^4 + x^3 + x + 1 */
+            b >>= 1;
+        }
+
+        return p;
+    }
+
     const ByteArray operator ^ (ByteArray const& first, ByteArray const& second)
     {
         ByteArray result;
 
         for (size_t i = 0; i < first.size(); i++) result.push_back(first[i] ^ second[i]);
+
+        return result;
+    }
+
+    ByteArray operator ^ (ByteMatrix const& first, ByteArray const& second)
+    {
+        ByteArray result = 
+        {
+            (uint8_t)(GFM(second[0], first[0][0]) ^ GFM(second[1], first[0][1]) ^ GFM(second[2], first[0][2]) ^ GFM(second[3], first[0][3])),
+            (uint8_t)(GFM(second[0], first[1][0]) ^ GFM(second[1], first[1][1]) ^ GFM(second[2], first[1][2]) ^ GFM(second[3], first[1][3])),
+            (uint8_t)(GFM(second[0], first[2][0]) ^ GFM(second[1], first[2][1]) ^ GFM(second[2], first[2][2]) ^ GFM(second[3], first[2][3])),
+            (uint8_t)(GFM(second[0], first[3][0]) ^ GFM(second[1], first[3][1]) ^ GFM(second[2], first[3][2]) ^ GFM(second[3], first[3][3]))
+        };
 
         return result;
     }
@@ -341,48 +371,35 @@ void CAES::InvSubBytes(ByteMatrix& state)
     }
 }
 
-uint8_t CAES::GFM(uint8_t a, uint8_t b)
-{
-    uint8_t c = 0;
-
-    for (size_t i = 7; i >= 1; i--)
-    {
-        c = c ^ ((a >> i) & 0x01) * b;
-        c = (c << 1) ^ ((c >> 7) & 0x01) * 27;
-    }
-
-    return (c ^ (a & 0x01) * b);
-}
-
 void CAES::MixColumns(ByteMatrix& state)
 {
-    uint8_t a0 = 2, a1 = 3, a2 = 1, a3 = 1, c0, c1, c2, c3;
+    ByteArray result(4);
 
-    for (size_t i = 0; i < 4; i++)
+    for (size_t row = 0; row < 4; row++)
     {
-        c0 = GFM(state[0][i], a0) ^ GFM(state[1][i], a1) ^ GFM(state[2][i], a2) ^ GFM(state[3][i], a3);
-        c1 = GFM(state[0][i], a3) ^ GFM(state[1][i], a0) ^ GFM(state[2][i], a1) ^ GFM(state[3][i], a2);
-        c2 = GFM(state[0][i], a2) ^ GFM(state[1][i], a3) ^ GFM(state[2][i], a0) ^ GFM(state[3][i], a1);
-        c3 = GFM(state[0][i], a1) ^ GFM(state[1][i], a2) ^ GFM(state[2][i], a3) ^ GFM(state[3][i], a0);
-        state[0][i] = c0;
-        state[1][i] = c1;
-        state[2][i] = c2;
-        state[3][i] = c3;
+        ByteArray currentColum = { state[0][row], state[1][row], state[2][row], state[3][row] };
+
+        result = PREDICATE_MATRIX ^ currentColum;
+
+        state[0][row] = result[0];
+        state[1][row] = result[1];
+        state[2][row] = result[2];
+        state[3][row] = result[3];
     }
 }
 void CAES::InvMixColumns(ByteMatrix& state)
 {
-    uint8_t a0 = 0x0e, a1 = 0x0b, a2 = 0x0d, a3 = 0x09, c0, c1, c2, c3;
+    ByteArray result(4);
 
-    for (size_t i = 0; i < 4; i++)
+    for (size_t row = 0; row < 4; row++)
     {
-        c0 = GFM(state[0][i], a0) ^ GFM(state[1][i], a1) ^ GFM(state[2][i], a2) ^ GFM(state[3][i], a3);
-        c1 = GFM(state[0][i], a3) ^ GFM(state[1][i], a0) ^ GFM(state[2][i], a1) ^ GFM(state[3][i], a2);
-        c2 = GFM(state[0][i], a2) ^ GFM(state[1][i], a3) ^ GFM(state[2][i], a0) ^ GFM(state[3][i], a1);
-        c3 = GFM(state[0][i], a1) ^ GFM(state[1][i], a2) ^ GFM(state[2][i], a3) ^ GFM(state[3][i], a0);
-        state[0][i] = c0;
-        state[1][i] = c1;
-        state[2][i] = c2;
-        state[3][i] = c3;
+        ByteArray currentColum = { state[0][row], state[1][row], state[2][row], state[3][row] };
+
+        result = INV_PREDICATE_MATRIX ^ currentColum;
+
+        state[0][row] = result[0];
+        state[1][row] = result[1];
+        state[2][row] = result[2];
+        state[3][row] = result[3];
     }
 }
