@@ -87,19 +87,19 @@ namespace
 
     uint8_t GFM(uint8_t a, uint8_t b)
     {
-        uint8_t p = 0;
+        uint8_t result = 0;
 
         for (size_t counter = 0; counter < 8; counter++)
         {
-            if ((b & 1) != 0) p ^= a;
+            if ((b & 1) != 0) result ^= a;
 
-            bool hi_bit_set = (a & 128) != 0;
+            bool hi_bit_set = ((a & 128) != 0);
             a <<= 1;
             if (hi_bit_set) a ^= 27; /* x^8 + x^4 + x^3 + x + 1 */
             b >>= 1;
         }
 
-        return p;
+        return result;
     }
 
     const ByteArray operator ^ (ByteArray const& first, ByteArray const& second)
@@ -377,7 +377,12 @@ void CAES::MixColumnsTemplate(ByteMatrix& state, ByteMatrix const& predicatMatri
 
     for (size_t row = 0; row < 4; row++)
     {
-        ByteArray currentColum = { state[0][row], state[1][row], state[2][row], state[3][row] };
+        ByteArray currentColum = { 
+            state[0][row],
+            state[1][row],
+            state[2][row],
+            state[3][row]
+        };
 
         result = predicatMatrix ^ currentColum;
 

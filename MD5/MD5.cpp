@@ -95,7 +95,7 @@ WordArray CMD5::PadingMessage(std::string const& message)
 {
     uint32_t messageLength = static_cast<uint32_t>(message.length());
 
-    uint32_t countBlocks = (messageLength * 8 + 64) / 512 + 1;
+    uint32_t countBlocks = ((messageLength * 8 + 64) / 512) + 1;
     uint32_t lengthBlocks = countBlocks * 16;
     WordArray result(lengthBlocks);
 
@@ -103,7 +103,7 @@ WordArray CMD5::PadingMessage(std::string const& message)
     {
         result[i >> 2] |= static_cast<uint32_t>((message[i]) << ((i % 4) * 8));
     }
-    result[message.length() >> 2] |= 0x80 << ((messageLength % 4) * 8);
+    result[message.length() >> 2] |= 128 << ((messageLength % 4) * 8);
 
 
     result[result.size() - 2] = (messageLength << 3);
