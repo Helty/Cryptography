@@ -24,6 +24,7 @@
     <ProjectGuid>{60aeca3e-7fa2-4464-b7d2-2a2242a82499}</ProjectGuid>
     <RootNamespace>Lab2</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>RSA</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -140,7 +141,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Lab2.cpp" />
+    <ClCompile Include="RSA.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

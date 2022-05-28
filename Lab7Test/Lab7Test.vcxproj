@@ -24,6 +24,7 @@
     <ProjectGuid>{396926e7-5298-4743-a2c0-94432e6ae2a1}</ProjectGuid>
     <RootNamespace>Lab7Test</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>HASH-GOST-94-TEST</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

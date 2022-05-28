@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Lab4.2.cpp">
+    <ClCompile Include="DSA_GOST_2001.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
