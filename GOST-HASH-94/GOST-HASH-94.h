@@ -13,26 +13,28 @@ using ByteMatrix = std::vector<ByteArray>;
 class CGOSTHash94
 {
 public:
-	static std::string Hashed(std::string const& message);
+	static std::string Hashed(std::string const&);
 
 private:
-	static void Compression(ByteArray& hash, ByteArray const& m);
+	static void Compression(ByteArray&, ByteArray const&);
 
-	static void TransformationW(ByteArray& Y, size_t counter);
-	static ByteArray TransformationE(ByteArray const& h, ByteArray const& key);
-	static size_t fi(size_t const& arg);
-	static ByteArray TransformationP(ByteArray const& Y);
-	static ByteArray TransformationA(ByteArray const& Y);
+	static std::vector<ByteArray> KeyGeneration(ByteArray const&, ByteArray const&);
+	static ByteArray EncryptionTransformation(ByteArray const&, ByteMatrix const&);
+	static void ShuffleTransformation(ByteArray&, ByteArray&, ByteArray const&);
 
-	static void ShuffleTransformation(ByteArray& hash, ByteArray& S, ByteArray const& M);
-	static void SubstitutionTable(ByteArray& blocks4bytes);
-	static void RoundOfFeistelCipher(ByteArray& A0, ByteArray& B0, ByteArray const& keys32);
-	static void FeistelCipher(ByteArray& A0, ByteArray& B0, std::vector<ByteArray> const& keys32);
-	static ByteArray EncryptionTransformation(ByteArray const& hash, std::vector<ByteArray> const& keys);
-	static std::vector<ByteArray> KeyGeneration(ByteArray const& hash, ByteArray const& m);
+	static void W(ByteArray&, size_t);
+	static ByteArray E(ByteArray const&, ByteArray const&);
+	static ByteArray P(ByteArray const&);
+	static size_t fi(size_t const&);
+	static ByteArray A(ByteArray const&);
 
-	static ByteArray StringToByteArray(std::string const& str);
-	static ByteArray Split256ToByteArray(uint256_t const& dec);
-	static void Split256To32Inv(ByteArray const& from, std::vector<ByteArray>& to);
+	static void FeistelCipher(ByteArray&, ByteArray&, ByteMatrix const&);
+	static void RoundOfFeistelCipher(ByteArray&, ByteArray&, ByteArray const&);
+	static void SubstitutionTable(ByteArray&);
+
+	static std::string ByteArrayToHash(ByteArray const&);
+	static ByteArray MessageToByteArray(std::string const&);
+	static ByteArray MessageBitSizeToByteArray(uint256_t const&);
+	static void SplitByteArray32ToByteMatrix8Inv(ByteArray const&, ByteMatrix&);
 };
 

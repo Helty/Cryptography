@@ -5,7 +5,7 @@
 std::string GetMessageFromUser()
 {
     std::string message;
-    std::cout << "������� ��������� ������� ������ ����������: ";
+    std::cout << "Input message for hashed: ";
     std::getline(std::cin, message);
     system("cls");
     return message;
@@ -19,6 +19,6 @@ int main(int argc, char* argv[])
     std::string message = GetMessageFromUser();
     std::string hash = CGOSTHash94::Hashed(message);
 
-    std::cout << "���������: " << message << std::endl;
-    std::cout << "���: " << hash << std::endl;
+    std::cout << "Message: " << message << std::endl;
+    std::cout << "Hash: " << hash << std::endl;
 }

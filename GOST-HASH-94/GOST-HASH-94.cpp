@@ -3,19 +3,18 @@
 namespace 
 {
 	const ByteMatrix m_sbox = {
-		{0x4, 0xA, 0x9, 0x2, 0xD, 0x8, 0x0, 0xE, 0x6, 0xB, 0x1, 0xC, 0x7, 0xF, 0x5, 0x3},
-		{0xE, 0xB, 0x4, 0xC, 0x6, 0xD, 0xF, 0xA, 0x2, 0x3, 0x8, 0x1, 0x0, 0x7, 0x5, 0x9},
-		{0x5, 0x8, 0x1, 0xD, 0xA, 0x3, 0x4, 0x2, 0xE, 0xF, 0xC, 0x7, 0x6, 0x0, 0x9, 0xB},
-		{0x7, 0xD, 0xA, 0x1, 0x0, 0x8, 0x9, 0xF, 0xE, 0x4, 0x6, 0xC, 0xB, 0x2, 0x5, 0x3},
-		{0x6, 0xC, 0x7, 0x1, 0x5, 0xF, 0xD, 0x8, 0x4, 0xA, 0x9, 0xE, 0x0, 0x3, 0xB, 0x2},
-		{0x4, 0xB, 0xA, 0x0, 0x7, 0x2, 0x1, 0xD, 0x3, 0x6, 0x8, 0x5, 0x9, 0xC, 0xF, 0xE},
-		{0xD, 0xB, 0x4, 0x1, 0x3, 0xF, 0x5, 0x9, 0x0, 0xA, 0xE, 0x7, 0x6, 0x8, 0x2, 0xC},
-		{0x1, 0xF, 0xD, 0x0, 0x5, 0x7, 0xA, 0x4, 0x9, 0x2, 0x3, 0xE, 0x6, 0xB, 0x8, 0xC},
+		ByteArray{0x4, 0xA, 0x9, 0x2, 0xD, 0x8, 0x0, 0xE, 0x6, 0xB, 0x1, 0xC, 0x7, 0xF, 0x5, 0x3},
+		ByteArray{0xE, 0xB, 0x4, 0xC, 0x6, 0xD, 0xF, 0xA, 0x2, 0x3, 0x8, 0x1, 0x0, 0x7, 0x5, 0x9},
+		ByteArray{0x5, 0x8, 0x1, 0xD, 0xA, 0x3, 0x4, 0x2, 0xE, 0xF, 0xC, 0x7, 0x6, 0x0, 0x9, 0xB},
+		ByteArray{0x7, 0xD, 0xA, 0x1, 0x0, 0x8, 0x9, 0xF, 0xE, 0x4, 0x6, 0xC, 0xB, 0x2, 0x5, 0x3},
+		ByteArray{0x6, 0xC, 0x7, 0x1, 0x5, 0xF, 0xD, 0x8, 0x4, 0xA, 0x9, 0xE, 0x0, 0x3, 0xB, 0x2},
+		ByteArray{0x4, 0xB, 0xA, 0x0, 0x7, 0x2, 0x1, 0xD, 0x3, 0x6, 0x8, 0x5, 0x9, 0xC, 0xF, 0xE},
+		ByteArray{0xD, 0xB, 0x4, 0x1, 0x3, 0xF, 0x5, 0x9, 0x0, 0xA, 0xE, 0x7, 0x6, 0x8, 0x2, 0xC},
+		ByteArray{0x1, 0xF, 0xD, 0x0, 0x5, 0x7, 0xA, 0x4, 0x9, 0x2, 0x3, 0xE, 0x6, 0xB, 0x8, 0xC},
 	};
-
 	const ByteMatrix c_const = {
 			ByteArray(32, 0),
-			{
+			ByteArray{
 				0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF,
 				0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00,
 				0x00, 0xFF, 0xFF, 0x00, 0xFF, 0x00, 0x00, 0xFF,
@@ -24,7 +23,7 @@ namespace
 			ByteArray(32, 0)
 	};
 
-	const ByteArray operator ^ (ByteArray const& first, ByteArray const& second)
+	const ByteArray operator^ (ByteArray const& first, ByteArray const& second)
 	{
 		ByteArray result;
 
@@ -32,19 +31,18 @@ namespace
 
 		return result;
 	}
-
 	ByteArray operator^= (ByteArray& left, ByteArray const& right)
 	{
 		for (size_t i = 0; i < left.size(); i++) left[i] ^= right[i];
 		return left;
 	}
 
-	ByteArray Summation(ByteArray const& firstTerm, ByteArray const& secondTerm, size_t counter)
+	ByteArray Summation(ByteArray const& firstTerm, ByteArray const& secondTerm, size_t const& modul)
 	{
 		ByteArray result;
 
 		uint32_t c = 0;
-		for (size_t i = 0; i < counter; i++)
+		for (size_t i = 0; i < modul; i++)
 		{
 			c += firstTerm[i] + secondTerm[i];
 			result.push_back(c & 0xFF);
@@ -53,16 +51,6 @@ namespace
 
 		return result;
 	}
-
-	std::string ByteArrayToString(ByteArray const& byteArray)
-	{
-		std::stringstream sstream;
-		for (size_t i = 0; i < 32; i++) sstream << std::setw(2) << std::setfill('0') << std::hex << (int)byteArray[i];
-		std::string result = sstream.str();
-		std::transform(result.begin(), result.end(), result.begin(), ::toupper);
-		return result;
-	}
-
 	void Rotate11Left(ByteArray& blocks4bytes)
 	{
 		std::rotate(blocks4bytes.rbegin(), blocks4bytes.rbegin() + 1, blocks4bytes.rend());
@@ -78,43 +66,59 @@ namespace
 	}
 }
 
-void CGOSTHash94::Split256To32Inv(ByteArray const& from, ByteMatrix& to)
+void CGOSTHash94::Compression(ByteArray& hash, ByteArray const& m)
 {
-	for (size_t step = 0; step < 8; step++)
+	ByteMatrix keys = KeyGeneration(hash, m);
+
+	ByteArray S = EncryptionTransformation(hash, keys);
+
+	ShuffleTransformation(hash, S, m);
+}
+
+ByteMatrix CGOSTHash94::KeyGeneration(ByteArray const& hash, ByteArray const& m)
+{
+	ByteMatrix keys;
+	ByteArray U = hash, V = m;
+
+	ByteArray W = U ^ V;
+	keys.push_back(P(W));
+
+	for (size_t j = 0; j < 3; j++)
 	{
-		ByteArray temp4bytes(from.begin() + (step * 4), from.begin() + (step * 4) + 4);
-		to.push_back(temp4bytes);
-	}
-}
-ByteArray CGOSTHash94::Split256ToByteArray(uint256_t const& dec)
-{
-	ByteArray result;
+		U = A(U) ^ c_const[j];
+		V = A(A(V));
+		W = U ^ V;
+		keys.push_back(P(W));
+	}	
 
-	for (size_t i = 0; i < 32; i++)
+	return keys;
+}
+ByteArray CGOSTHash94::EncryptionTransformation(ByteArray const& hash, ByteMatrix const& keys)
+{
+	ByteArray S, s;
+
+	for (size_t step = 0; step < 4; step++)
 	{
-		result.push_back(
-			static_cast<uint8_t>(dec >> (i * 8))
-		);
+		ByteArray block8Bytes(hash.begin() + (step * 8), hash.begin() + (step * 8) + 8);
+		s = E(block8Bytes, keys[step]);
+		S.insert(S.end(), s.begin(), s.end());
 	}
 
-	return result;
+	return S;
 }
-ByteArray CGOSTHash94::StringToByteArray(std::string const& str)
+void CGOSTHash94::ShuffleTransformation(ByteArray& hash, ByteArray& S, ByteArray const& M)
 {
-	ByteArray result;
-
-	std::for_each(str.begin(), str.end(), [&result](unsigned char const& byte)
-		{
-			result.push_back(byte);
-		}
-	);
-
-	return result;
+	W(S, 12);
+	S ^= M;
+	W(S, 1);
+	S ^= hash;
+	W(S, 61);
+	hash = S;
 }
 
-void CGOSTHash94::TransformationW(ByteArray& Y, size_t counter)
+void CGOSTHash94::W(ByteArray& Y, size_t repetition—ount)
 {
-	while (counter--)
+	while (repetition—ount--)
 	{
 		std::pair<uint8_t, uint8_t> block16bytes = { 0, 0 };
 
@@ -131,26 +135,31 @@ void CGOSTHash94::TransformationW(ByteArray& Y, size_t counter)
 		Y[31] = block16bytes.second;
 	}
 }
-ByteArray CGOSTHash94::TransformationE(ByteArray const& h, ByteArray const& key)
+ByteArray CGOSTHash94::E(ByteArray const& h, ByteArray const& key)
 {
 	ByteArray A(h.begin(), h.end() - 4);
 	ByteArray B(h.begin() + 4, h.end());
 
 	ByteMatrix keys32;
-	Split256To32Inv(key, keys32);
+	SplitByteArray32ToByteMatrix8Inv(key, keys32);
 
 	FeistelCipher(A, B, keys32);
 
 	B.insert(B.end(), A.begin(), A.end());
 	return B;
 }
-ByteArray CGOSTHash94::TransformationP(ByteArray const& Y)
+ByteArray CGOSTHash94::P(ByteArray const& Y)
 {
 	ByteArray result;
 	for (size_t i = 0; i < 32; i++) result.push_back(Y[fi(i)]);
 	return result;
 }
-ByteArray CGOSTHash94::TransformationA(ByteArray const& Y)
+size_t CGOSTHash94::fi(size_t const& arg)
+{
+	size_t i = (arg & 3), k = (arg >> 2);
+	return (i << 3) + (++k) - 1;
+}
+ByteArray CGOSTHash94::A(ByteArray const& Y)
 {
 	ByteArray result;
 	for (size_t i = 8; i < 32; i++) result.push_back(Y[i]);
@@ -158,15 +167,46 @@ ByteArray CGOSTHash94::TransformationA(ByteArray const& Y)
 	return result;
 }
 
-void CGOSTHash94::ShuffleTransformation(ByteArray& hash, ByteArray& S, ByteArray const& M)
+std::string CGOSTHash94::ByteArrayToHash(ByteArray const& byteArray)
 {
-	TransformationW(S, 12);
-	S ^= M;
-	TransformationW(S, 1);
-	S ^= hash;
-	TransformationW(S, 61);
-	hash = S;
+	std::stringstream sstream;
+	for (size_t i = 0; i < 32; i++) sstream << std::setw(2) << std::setfill('0') << std::hex << (int)byteArray[i];
+	std::string result = sstream.str();
+	std::transform(result.begin(), result.end(), result.begin(), ::toupper);
+	return result;
 }
+void CGOSTHash94::SplitByteArray32ToByteMatrix8Inv(ByteArray const& from, ByteMatrix& to)
+{
+	for (size_t step = 0; step < 8; step++)
+	{
+		ByteArray temp4bytes(from.begin() + (step * 4), from.begin() + (step * 4) + 4);
+		to.push_back(temp4bytes);
+	}
+}
+ByteArray CGOSTHash94::MessageBitSizeToByteArray(uint256_t const& sizeOfMessageBits)
+{
+	ByteArray result;
+
+	for (size_t i = 0; i < 32; i++)
+	{
+		result.push_back(static_cast<uint8_t>(sizeOfMessageBits >> (i * 8)));
+	}
+
+	return result;
+}
+ByteArray CGOSTHash94::MessageToByteArray(std::string const& message)
+{
+	ByteArray result;
+
+	std::for_each(message.begin(), message.end(), [&result](unsigned char const& byte)
+		{
+			result.push_back(byte);
+		}
+	);
+
+	return result;
+}
+
 
 void CGOSTHash94::SubstitutionTable(ByteArray& blocks4bytes)
 {
@@ -195,7 +235,9 @@ void CGOSTHash94::RoundOfFeistelCipher(ByteArray& A0, ByteArray& B0, ByteArray c
 }
 void CGOSTHash94::FeistelCipher(ByteArray& A0, ByteArray& B0, ByteMatrix const& keys32)
 {
-	// | K0, K1, K2, K3, K4, K5, K6, K7 | K0, K1, K2, K3, K4, K5, K6, K7 | K0, K1, K2, K3, K4, K5, K6, K7 |
+	// | K0, K1, K2, K3, K4, K5, K6, K7 |
+	// | K0, K1, K2, K3, K4, K5, K6, K7 |
+	// | K0, K1, K2, K3, K4, K5, K6, K7 |
 	for (uint8_t round = 0; round < 24; ++round)
 	{
 		RoundOfFeistelCipher(A0, B0, keys32[round % 8]);
@@ -207,58 +249,14 @@ void CGOSTHash94::FeistelCipher(ByteArray& A0, ByteArray& B0, ByteMatrix const& 
 		RoundOfFeistelCipher(A0, B0, keys32[round % 8]);
 	}
 }
-ByteArray CGOSTHash94::EncryptionTransformation(ByteArray const& hash, ByteMatrix const& keys)
-{
-	ByteArray S, s;
-
-	for (size_t step = 0; step < 4; step++)
-	{
-		ByteArray block8Bytes(hash.begin() + (step * 8), hash.begin() + (step * 8) + 8);
-		s = TransformationE(block8Bytes, keys[step]);
-		S.insert(S.end(), s.begin(), s.end());
-	}
-
-	return S;
-}
-
-size_t CGOSTHash94::fi(size_t const& arg)
-{
-	size_t i = (arg & 3), k = (arg >> 2);
-	return (i << 3) + (++k) - 1;
-}
-ByteMatrix CGOSTHash94::KeyGeneration(ByteArray const& hash, ByteArray const& m)
-{
-	ByteMatrix keys;
-	ByteArray W, C, U = hash, V = m;
-
-	W = U ^ V;
-	keys.push_back(TransformationP(W));
-
-	for (size_t j = 0; j < 3; j++)
-	{
-		U = TransformationA(U) ^ c_const[j];
-		V = TransformationA(TransformationA(V));
-		W = U ^ V;
-		keys.push_back(TransformationP(W));
-	}
-
-	return keys;
-}
-
-void CGOSTHash94::Compression(ByteArray& hash, ByteArray const& m)
-{
-	ByteMatrix keys = KeyGeneration(hash, m);
-
-	ByteArray S = EncryptionTransformation(hash, keys);
-	
-	ShuffleTransformation(hash, S, m);
-}
 
 std::string CGOSTHash94::Hashed(std::string const& message)
 {
-	ByteArray hash(32, 0), Sum(32, 0), m;
-	ByteArray messageByteArray = StringToByteArray(message);
-	ByteArray length = Split256ToByteArray(messageByteArray.size() * 8);
+	ByteArray hash(32, 0);
+	ByteArray Sum(32, 0), m;
+
+	ByteArray messageByteArray = MessageToByteArray(message);
+	ByteArray length = MessageBitSizeToByteArray(messageByteArray.size() * 8);
 
 	while (messageByteArray.size() % 32 != 0) messageByteArray.push_back(0);
 
@@ -268,12 +266,11 @@ std::string CGOSTHash94::Hashed(std::string const& message)
 
 		m = block32Bytes;
 		Sum = Summation(Sum, m, 32);
-
 		Compression(hash, m);
 	}
 
 	Compression(hash, length);
 	Compression(hash, Sum);
 
-	return ByteArrayToString(hash);
+	return ByteArrayToHash(hash);
 }

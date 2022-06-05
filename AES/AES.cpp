@@ -113,15 +113,12 @@ namespace
 
     ByteArray operator ^ (ByteMatrix const& first, ByteArray const& second)
     {
-        ByteArray result = 
-        {
+        return {
             (uint8_t)(GFM(second[0], first[0][0]) ^ GFM(second[1], first[0][1]) ^ GFM(second[2], first[0][2]) ^ GFM(second[3], first[0][3])),
             (uint8_t)(GFM(second[0], first[1][0]) ^ GFM(second[1], first[1][1]) ^ GFM(second[2], first[1][2]) ^ GFM(second[3], first[1][3])),
             (uint8_t)(GFM(second[0], first[2][0]) ^ GFM(second[1], first[2][1]) ^ GFM(second[2], first[2][2]) ^ GFM(second[3], first[2][3])),
             (uint8_t)(GFM(second[0], first[3][0]) ^ GFM(second[1], first[3][1]) ^ GFM(second[2], first[3][2]) ^ GFM(second[3], first[3][3]))
         };
-
-        return result;
     }
 }
 
